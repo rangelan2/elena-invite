@@ -8,59 +8,61 @@ const storyMoments = [
   {
     icon: "🎓",
     title: "The First Almost-Meeting",
-    content: "We sat at the same table at Ohio State&apos;s Accepted Students Day. Elena noticed Anthony—but didn&apos;t say a word. With 12,000 other students around, she thought she&apos;d never see him again."
+    content: "Accepted Students Day, 2014.\nThey sat at the same table.\n\nElena remembered his name, his face, and that he was cute.\nShe even told him she was from Jersey.\n\nAnthony?\nNothing. Total wipe.\n\nMonths later—same dorm, same floor.\nHe says, \"Nice to meet you.\"\nShe smiles. She knew they had already met but didn't say a word."
   },
   {
     icon: "📚",
     title: "The Friend Years",
-    content: "We became fast friends. Dorm room hangs, club meetings, founding Pass Go. Elena called Anthony her &apos;intellectual soulmate.&apos; We did everything together—except date."
+    content: "Same floor, same major, same hustle.\nDorm hangs, club meetings, building Pass Go.\n\nThey did everything together—classes, career fairs, late-night talks.\nElena called Anthony her intellectual soulmate.\n\nSweet.\nAlso: firmly friend-zoned.\n\nThey were inseparable.\nJust not a couple.\n\nYet."
   },
   {
     icon: "❓",
     title: "The Trivia Spark",
-    content: "Senior year. Weekly trivia nights. A shitty six-pack prize. Elena didn&apos;t like beer, but we never missed a round. Somewhere between the questions, we started seeing each other differently."
+    content: "Senior year.\nWeekly trivia nights. Prize? A freshly brewed six-pack.\nThe problem? Elena hated beer. Still never missed a round.\n\nSomewhere between the questions and the banter,\nSomething shifted.\n\nThey stopped looking at the scoreboard.\nStarted noticing each other."
   },
   {
     icon: "✈️",
     title: "Donuts & Distance",
-    content: "We parted after graduation. Calls from the Singapore Zoo. Weekend trips to Philly. Mozzarella stick memories. The spark didn&apos;t die—even when we thought the story had paused."
+    content: "Graduation hit.\nShe moved East. He stayed Midwest.\n\nThere were calls from the Singapore Zoo.\nTrain rides to Philly.\nLate-night talks and mozzarella stick memories.\n\nThe spark dimmed.\nBut it never went out.\n\nEven when the story hit pause—\nIt was still playing."
   },
   {
     icon: "🥂",
     title: "The First Celebration",
-    content: "The night before Elena found out about Stanford, Anthony took her to dinner. Not to celebrate results—but the effort. That night, two traditions began: celebrate early, and celebrate often."
+    content: "The night before Stanford decisions dropped,\nAnthony took Elena to dinner.\n\nNot to toast the outcome—\nBut the effort.\n\nThat night, two traditions were born:\nCelebrate early.\nCelebrate often."
   },
   {
     icon: "💍",
     title: "The Proposal",
-    content: "A surprise birthday trip. DAOU Mountain. A quiet &apos;yes.&apos; Then days of stillness in Carmel—sheep in the pasture, wine on the patio, and our favorite town by the sea."
+    content: "A surprise trip for her birthday.\nDAOU Mountain. A quiet yes.\n\nThen came the stillness—\nSheep in the pasture,\nWine on the patio,\nCarmel by the sea.\n\nJust us.\nJust right."
   },
   {
     icon: "🎉",
-    title: "The Party That Gathers Us",
-    content: "This isn&apos;t just a party. It&apos;s every chapter of our story in one room. And you—our people—are what makes the story matter."
+    title: "The People In the Story",
+    content: "This isn't just a party.\nIt's every chapter, all in one room.\n\nThe memories, the milestones—sure.\nBut you—our people—\nYou're what makes the story matter."
   }
 ];
 
 function StoryModal({ story, onClose }) {
   return (
     <motion.div
-      className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      onClick={onClose}
     >
       <motion.div
-        className="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-6 sm:p-10 max-w-xl w-full shadow-2xl text-center"
+        className="bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-10 max-w-[90%] sm:max-w-xl w-full shadow-2xl text-center mx-auto"
         initial={{ scale: 0.8 }}
         animate={{ scale: 1 }}
         exit={{ scale: 0.8 }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl sm:text-2xl font-[fonts.heading] font-bold text-[#4A5D4F] mb-3 sm:mb-4">{story.title}</h2>
-        <p className="text-base sm:text-lg text-[#4A5D4F]/80 mb-5 sm:mb-6">{story.content}</p>
+        <h2 className="text-lg sm:text-xl md:text-2xl font-[fonts.heading] font-bold text-[#4A5D4F] mb-2 sm:mb-3 md:mb-4">{story.title}</h2>
+        <p className="text-sm sm:text-base md:text-lg text-[#4A5D4F]/80 mb-4 sm:mb-5 md:mb-6 whitespace-pre-line leading-relaxed">{story.content}</p>
         <button 
           onClick={onClose} 
-          className="text-sm text-[#4A5D4F] underline hover:text-[#4A5D4F]/70 transition py-1"
+          className="text-xs sm:text-sm text-[#4A5D4F] underline hover:text-[#4A5D4F]/70 transition py-1"
         >
           Back to the garden
         </button>
@@ -88,25 +90,21 @@ export default function Page() {
         <div className="flex-1">
           {/* Empty div for centering */}
         </div>
-        <h1 className="text-lg sm:text-xl md:text-2xl font-serif text-[#4A5D4F] max-w-2xl text-center">
-          An invitation to gather in celebration of Elena & Anthony's engagement
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-[#4A5D4F] max-w-2xl text-center font-medium tracking-wide">
+          An invitation to gather in celebration of<br className="hidden sm:block" />Elena & Anthony's engagement
         </h1>
-        <div className="flex-1 flex justify-end">
-          <button
-            onClick={() => scrollToSection('registry')}
-            className="text-base sm:text-lg text-[#4A5D4F] hover:text-[#4A5D4F]/70 transition"
-          >
-            Registry
-          </button>
+        <div className="flex-1">
+          {/* Empty div for centering */}
         </div>
       </header>
       <section className="relative min-h-screen px-4 sm:px-6 py-32 sm:py-40 text-center flex flex-col justify-center items-center space-y-6 overflow-hidden">
         <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center opacity-90"
+          className="absolute inset-0 w-full h-full bg-cover bg-center"
           style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1522093537031-3ee69e6b1746?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80')`
+            backgroundImage: `url('/images/hero-background.png')`
           }}
         />
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-white/80 to-transparent h-1/3"></div>
         <div className="relative z-10 bg-white/70 backdrop-blur-sm p-6 sm:p-8 rounded-xl shadow-md max-w-3xl">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-[fonts.heading] text-[#4A5D4F] font-bold leading-tight mb-6">
             You're not just invited to the party,<br className="hidden sm:block" />you're part of our story.
@@ -201,17 +199,20 @@ export default function Page() {
         <p className="mb-6 sm:mb-8 text-base sm:text-lg text-[#4A5D4F]/80 max-w-xl mx-auto">
           Leave us a note, a memory, or a wish—your words will help shape this gathering.
         </p>
-        <div className="w-full max-w-full overflow-hidden bg-white/80 rounded-xl shadow-sm">
-          <iframe
-            src="https://docs.google.com/forms/d/e/1FAIpQLSennP8rVv4z7UrbsG1O4u7ruSm4DYjweiQGeP83m_Wx2NtaRg/viewform?embedded=true"
-            className="w-full"
-            height="1984"
-            frameBorder="0"
-            marginHeight="0"
-            marginWidth="0"
+        <div className="w-full max-w-xl mx-auto">
+          <a
+            href="https://forms.gle/v51WCerpvKfHaCZ69"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-[#729b79] hover:bg-[#5c7f66] text-white font-semibold px-8 py-4 rounded-lg transition text-lg"
           >
-            Loading…
-          </iframe>
+            RSVP Now
+          </a>
+        </div>
+        <div className="my-16 flex items-center justify-center">
+          <div className="w-24 h-px bg-[#4A5D4F]/20"></div>
+          <div className="mx-4 text-[#4A5D4F]/40">❦</div>
+          <div className="w-24 h-px bg-[#4A5D4F]/20"></div>
         </div>
         <div className="mt-10" id="registry">
           <h2 className="text-3xl sm:text-4xl font-[fonts.heading] font-bold mb-4 sm:mb-6 text-[#4A5D4F]">Our Registry</h2>
