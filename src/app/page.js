@@ -8,22 +8,22 @@ const storyMoments = [
   {
     icon: "🎓",
     title: "The First Almost-Meeting",
-    content: "We sat at the same table at Ohio State's Accepted Students Day. Elena noticed Anthony—but didn't say a word. With 12,000 other students around, she thought she'd never see him again."
+    content: "We sat at the same table at Ohio State&apos;s Accepted Students Day. Elena noticed Anthony—but didn&apos;t say a word. With 12,000 other students around, she thought she&apos;d never see him again."
   },
   {
     icon: "📚",
     title: "The Friend Years",
-    content: "We became fast friends. Dorm room hangs, club meetings, founding Pass Go. Elena called Anthony her 'intellectual soulmate.' We did everything together—except date."
+    content: "We became fast friends. Dorm room hangs, club meetings, founding Pass Go. Elena called Anthony her &apos;intellectual soulmate.&apos; We did everything together—except date."
   },
   {
     icon: "❓",
     title: "The Trivia Spark",
-    content: "Senior year. Weekly trivia nights. A shitty six-pack prize. Elena didn't like beer, but we never missed a round. Somewhere between the questions, we started seeing each other differently."
+    content: "Senior year. Weekly trivia nights. A shitty six-pack prize. Elena didn&apos;t like beer, but we never missed a round. Somewhere between the questions, we started seeing each other differently."
   },
   {
     icon: "✈️",
     title: "Donuts & Distance",
-    content: "We parted after graduation. Calls from the Singapore Zoo. Weekend trips to Philly. Mozzarella stick memories. The spark didn't die—even when we thought the story had paused."
+    content: "We parted after graduation. Calls from the Singapore Zoo. Weekend trips to Philly. Mozzarella stick memories. The spark didn&apos;t die—even when we thought the story had paused."
   },
   {
     icon: "🥂",
@@ -33,12 +33,12 @@ const storyMoments = [
   {
     icon: "💍",
     title: "The Proposal",
-    content: "A surprise birthday trip. DAOU Mountain. A quiet 'yes.' Then days of stillness in Carmel—sheep in the pasture, wine on the patio, and our favorite town by the sea."
+    content: "A surprise birthday trip. DAOU Mountain. A quiet &apos;yes.&apos; Then days of stillness in Carmel—sheep in the pasture, wine on the patio, and our favorite town by the sea."
   },
   {
     icon: "🎉",
     title: "The Party That Gathers Us",
-    content: "This isn't just a party. It's every chapter of our story in one room. And you—our people—are what makes the story matter."
+    content: "This isn&apos;t just a party. It&apos;s every chapter of our story in one room. And you—our people—are what makes the story matter."
   }
 ];
 
