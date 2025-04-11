@@ -1,18 +1,13 @@
 'use client';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { colors, fonts } from '../theme';
 import Image from 'next/image';
 
 const storyMoments = [
   {
-    icon: "🎓",
-    title: "The First Almost-Meeting",
-    content: "Accepted Students Day, 2014.\nThey sat at the same table.\n\nElena remembered his name, his face, and that he was cute.\nShe even told him she was from Jersey.\n\nAnthony?\nNothing. Total wipe.\n\nMonths later—same dorm, same floor.\nHe says, \"Nice to meet you.\"\nShe smiles. She knew they had already met but didn't say a word."
-  },
-  {
     icon: "📚",
-    title: "The Friend Years",
+    title: "The Friend Zone",
     content: "Same floor, same major, same hustle.\nDorm hangs, club meetings, building Pass Go.\n\nThey did everything together—classes, career fairs, late-night talks.\nElena called Anthony her intellectual soulmate.\n\nSweet.\nAlso: firmly friend-zoned.\n\nThey were inseparable.\nJust not a couple.\n\nYet."
   },
   {
@@ -28,17 +23,22 @@ const storyMoments = [
   {
     icon: "🥂",
     title: "The First Celebration",
-    content: "The night before Stanford decisions dropped,\nAnthony took Elena to dinner.\n\nNot to toast the outcome—\nBut the effort.\n\nThat night, two traditions were born:\nCelebrate early.\nCelebrate often."
+    content: "The night before Stanford decisions were announced (the first time),\nAnthony took Elena to dinner.\n\nNot to toast the outcome—\nBut the effort.\n\nThat night, two traditions were born:\nCelebrate early.\nCelebrate often."
+  },
+  {
+    icon: "🎓",
+    title: "Back to School",
+    content: "Took their talents to California. This time, as a couple.\n\nThey built community.\nDinner parties with way too many people crammed around a table.\nWalks through eucalyptus-lined paths.\nTwo-person traditions in a brand-new place.\n\nTheir love aged there.\nReal. Earned. Rooted."
   },
   {
     icon: "💍",
     title: "The Proposal",
-    content: "A surprise trip for her birthday.\nDAOU Mountain. A quiet yes.\n\nThen came the stillness—\nSheep in the pasture,\nWine on the patio,\nCarmel by the sea.\n\nJust us.\nJust right."
+    content: "A surprise trip for her birthday.\nDAOU Mountain. Anthony asks. A quiet yes.\n\nA yes built on a decade of maybes and what-ifs and timing and choices and one hell of a solid friendship.\n\nJust us.\nJust right."
   },
   {
     icon: "🎉",
-    title: "The People In the Story",
-    content: "This isn't just a party.\nIt's every chapter, all in one room.\n\nThe memories, the milestones—sure.\nBut you—our people—\nYou're what makes the story matter."
+    title: "The Celebration Begins",
+    content: "Join us for a night to remember.\nThis isn't just a party.\nIt's every chapter, all in one room."
   }
 ];
 
@@ -63,6 +63,7 @@ function StoryModal({ story, onClose }) {
         <button 
           onClick={onClose} 
           className="text-xs sm:text-sm text-[#4A5D4F] underline hover:text-[#4A5D4F]/70 transition py-1"
+          aria-label="Close story modal"
         >
           Back to the garden
         </button>
@@ -73,6 +74,19 @@ function StoryModal({ story, onClose }) {
 
 export default function Page() {
   const [activeStory, setActiveStory] = useState(null);
+  const [visited, setVisited] = useState(new Set());
+  const [hasUnlockedGame, setHasUnlockedGame] = useState(false);
+  const [showUnlockPopup, setShowUnlockPopup] = useState(false);
+
+  useEffect(() => {
+    if (hasUnlockedGame && !showUnlockPopup) {
+      const timer = setTimeout(() => {
+        setShowUnlockPopup(true);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [hasUnlockedGame, showUnlockPopup]);
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -90,49 +104,51 @@ export default function Page() {
         <div className="flex-1">
           {/* Empty div for centering */}
         </div>
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-white max-w-2xl text-center font-medium tracking-wide bg-black/20 backdrop-blur-sm px-6 py-3 rounded-lg shadow-sm">
-          An invitation to gather in celebration of<br className="hidden sm:block" />Elena & Anthony's engagement
+        <h1 className="text-lg sm:text-xl md:text-2xl font-serif text-white max-w-lg sm:max-w-xl md:max-w-2xl mx-auto text-center font-medium tracking-wide bg-black/20 backdrop-blur-sm px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-sm">
+          We're gathering our dearest friends for the first of many celebrations. And it wouldn't be the same without you.
         </h1>
         <div className="flex-1">
           {/* Empty div for centering */}
         </div>
       </header>
-      <section className="relative min-h-screen px-4 sm:px-6 py-32 sm:py-40 text-center flex flex-col justify-center items-center space-y-6 overflow-hidden">
+      <section className="relative min-h-screen px-4 sm:px-6 py-32 sm:py-40 text-center flex flex-col justify-center items-center space-y-8 sm:space-y-10 overflow-hidden">
         <div className="absolute inset-0 w-full h-full">
           <Image
-            src="/images/flowery-hero-optimized.jpg"
-            alt="Coastal landscape with flowers"
+            src="/images/winery-hero.jpg"
+            alt="Scenic winery view with vineyards and mountains in the background"
             fill
             priority
             quality={85}
             placeholder="blur"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRseHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/2wBDAR4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRseHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/2wBDAR4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 80vw"
             className="blur-[4px] object-cover object-center"
             loading="eager"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-black/40"></div>
         </div>
-        <div className="relative z-10 bg-black/20 backdrop-blur-md p-6 sm:p-8 rounded-xl shadow-lg max-w-3xl mx-4">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-[fonts.heading] text-white font-bold leading-tight mb-6">
-            You're not just invited to the party,<br className="hidden sm:block" />you're part of our story.
+        <div className="relative z-10 bg-black/20 backdrop-blur-md p-6 sm:p-8 rounded-xl shadow-lg max-w-3xl mx-4 mt-16 sm:mt-0">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-[fonts.heading] text-white font-bold leading-tight mb-8 sm:mb-10">
+            Join Elena & Anthony to celebrate their engagement!
           </h1>
-          <div className="text-base sm:text-lg text-white/90 space-y-3">
+          <div className="text-base sm:text-lg text-white/90 space-y-4">
             <p><strong>Saturday, June 14, 2025</strong></p>
-            <p>7:00 – 11:00 PM</p>
-            <p>Saturn Road · 276 Court St, Brooklyn, NY</p>
-            <p>Light bites, music, and cold drinks for this elevated garden outdoor gathering.</p>
+            <p>🕖 7:00 – 11:00 PM</p>
+            <p>📍 Saturn Road · 276 Court St, Brooklyn, NY</p>
+            <p>🥂 Music, drinks, light noms, backyard dancing, and stories old and new</p>
           </div>
           <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <button
               onClick={() => scrollToSection('our-story')}
-              className="w-full sm:w-auto inline-block bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-semibold px-6 py-3 rounded-lg transition text-center"
+              className="w-full sm:w-auto inline-block bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-semibold px-8 py-3 rounded-lg transition text-center"
+              aria-label="View our story"
             >
-              Begin Our Journey
+              Let's Start at the Beginning
             </button>
             <button
               onClick={() => scrollToSection('rsvp')}
               className="w-full sm:w-auto inline-block bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 font-semibold px-6 py-3 rounded-lg transition text-center"
+              aria-label="Go to RSVP section"
             >
               RSVP
             </button>
@@ -167,7 +183,7 @@ export default function Page() {
           Discover Our Story
         </h2>
         <p className="text-center text-base sm:text-lg text-[#4A5D4F]/80 mb-12 sm:mb-16 max-w-2xl mx-auto px-2 sm:px-4">
-          We've put together a digital garden of the moments that made us. Each step holds a memory and a question just for you.
+          Before there was a proposal, a wedding, or even a kiss... there was trivia night.
         </p>
         <div className="flex flex-col items-center space-y-8 sm:space-y-10 max-w-2xl mx-auto px-2 sm:px-0">
           {storyMoments.map((story, index) => (
@@ -180,7 +196,17 @@ export default function Page() {
               className="relative w-full bg-white/60 backdrop-blur-md border border-[#4A5D4F]/10 rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-lg hover:bg-white/80 transition"
             >
               <motion.button
-                onClick={() => setActiveStory(story)}
+                onClick={() => {
+                  setVisited(prev => {
+                    const updated = new Set(prev);
+                    updated.add(story.title);
+                    if (updated.size === storyMoments.length) {
+                      setHasUnlockedGame(true);
+                    }
+                    return updated;
+                  });
+                  setActiveStory(story);
+                }}
                 className="w-full flex items-start sm:items-center space-x-3 sm:space-x-4 text-left"
                 whileHover={{ scale: 1.02 }}
               >
@@ -200,6 +226,31 @@ export default function Page() {
         {activeStory && (
           <StoryModal story={activeStory} onClose={() => setActiveStory(null)} />
         )}
+
+        {showUnlockPopup && (
+          <motion.div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <div className="bg-white rounded-3xl p-10 max-w-lg text-center shadow-2xl">
+              <h2 className="text-2xl font-bold text-[#475b63] mb-4">🎉 You've Unlocked a Secret!</h2>
+              <p className="text-[#2e2c2f] mb-6">
+                By exploring every chapter of our story, you've discovered a mini-game inspired by our favorite memories.
+              </p>
+              <a
+                href="/play"
+                className="inline-block bg-[#729b79] text-white px-6 py-3 rounded-full hover:bg-[#5c7f66] transition"
+              >
+                Click to Play
+              </a>
+            </div>
+          </motion.div>
+        )}
+        
+        <p className="text-center text-base sm:text-lg text-[#4A5D4F]/80 mt-16 max-w-2xl mx-auto px-2 sm:px-4">
+          This isn't just a party—it's our way of saying thank you. You've shaped who we are and have always shown up for us. Let's raise a glass to the road behind us and the one ahead.
+        </p>
       </section>
 
       <section id="rsvp" className="py-16 sm:py-20 px-4 sm:px-6 bg-[#F3EFE9] text-center">
@@ -212,13 +263,13 @@ export default function Page() {
         </p>
         <div className="w-full max-w-xl mx-auto space-y-4 mb-8">
           <p className="text-base sm:text-lg text-[#4A5D4F]/80">
-            <span className="font-semibold">What:</span> An evening to celebrate our engagement full of joy, stories, and the people we love most.
+            <span className="font-semibold">🥂</span> An evening to celebrate our engagement full of joy, stories, and the people we love most.
           </p>
           <p className="text-base sm:text-lg text-[#4A5D4F]/80">
-            <span className="font-semibold">Where:</span> Saturn Road (276 Court St, Brooklyn, NY 11231)
+            <span className="font-semibold">📍</span> Saturn Road (276 Court St, Brooklyn, NY 11231)
           </p>
           <p className="text-base sm:text-lg text-[#4A5D4F]/80">
-            <span className="font-semibold">When:</span> Saturday, June 14, 2025 from 7:00 PM – 11:00 PM
+            <span className="font-semibold">🕖</span> Saturday, June 14, 2025 from 7:00 PM – 11:00 PM
           </p>
         </div>
         <div className="w-full max-w-xl mx-auto">

@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "optimize-images": "node scripts/optimize-images.js"
+    "optimize-images": "node scripts/optimize-images.js",
+    "test:a11y": "node scripts/run-a11y-tests.js",
+    "test:lighthouse": "node scripts/run-lighthouse.js",
+    "test": "npm run lint && npm run test:a11y && npm run test:lighthouse"
   },
   "dependencies": {
     "critters": "^0.0.23",
@@ -16,15 +19,20 @@
     "next": "15.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "sharp": "^0.34.1"
+    "sharp": "^0.34.1",
+    "use-sound": "^5.0.0"
   },
   "devDependencies": {
+    "@axe-core/puppeteer": "^4.8.2",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "22.14.0",
     "@types/react": "19.1.0",
+    "chrome-launcher": "^1.1.0",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
+    "lighthouse": "^11.7.0",
+    "puppeteer": "^22.11.0",
     "tailwindcss": "^4"
   }
 }
