@@ -6,7 +6,8 @@
     "dev": "next dev -p 3005",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "optimize-images": "node scripts/optimize-images.js"
   },
   "dependencies": {
     "critters": "^0.0.23",
