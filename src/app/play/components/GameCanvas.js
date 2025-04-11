@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import useSound from 'use-sound';
 
-const GameCanvas = ({ onGameOver, onScoreUpdate }) => {
+const GameCanvas = ({ onGameOver, onScoreUpdate, showScoreForm }) => {
   const canvasRef = useRef(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
@@ -12,11 +12,40 @@ const GameCanvas = ({ onGameOver, onScoreUpdate }) => {
   const [waitingToStart, setWaitingToStart] = useState(true);
   const [fontLoaded, setFontLoaded] = useState(false);
   
-  // Sound effects
-  const [playFlap] = useSound('/sounds/flap.mp3', { volume: 0.5 });
-  const [playPoint] = useSound('/sounds/point.mp3', { volume: 0.5 });
-  const [playCollision] = useSound('/sounds/collision.mp3', { volume: 0.7 });
-  const [playDing] = useSound('/sounds/flap.mp3', { volume: 0.5 });
+  // Sound effects with fallbacks and error handling
+  const [playFlap] = useSound('/sounds/flap.mp3', { 
+    volume: 0.5,
+    soundEnabled: true,
+    // Provide an empty function as fallback if sound fails
+    onplayerror: () => {
+      return () => {}
+    }
+  });
+  
+  const [playPoint] = useSound('/sounds/flap.mp3', { // Using flap.mp3 as fallback for point.mp3
+    volume: 0.5,
+    soundEnabled: true,
+    onplayerror: () => {
+      return () => {}
+    }
+  });
+  
+  const [playCollision] = useSound('/sounds/collision.mp3', { 
+    volume: 0.7,
+    soundEnabled: true,
+    onplayerror: () => {
+      return () => {}
+    }
+  });
+  
+  // Using flap sound for ding as well
+  const [playDing] = useSound('/sounds/flap.mp3', { 
+    volume: 0.5,
+    soundEnabled: true,
+    onplayerror: () => {
+      return () => {}
+    }
+  });
   
   // Load font first
   useEffect(() => {
@@ -69,9 +98,9 @@ const GameCanvas = ({ onGameOver, onScoreUpdate }) => {
     colors: {
       sky: '#70C5CE',
       ground: '#DED895',
-      pipe: '#73BF2E',
-      pipeHighlight: '#8CC542',
-      pipeShadow: '#588A1B',
+      pipe: '#8B4513', // Dark brown for pews
+      pipeHighlight: '#A0522D', // Medium brown highlight
+      pipeShadow: '#654321', // Darker brown shadow
       bird: '#FFDB4D', // Bird color
       birdDetail: '#F37820', // Bird detail color
       text: '#FFFFFF' // Text color
@@ -226,6 +255,31 @@ const GameCanvas = ({ onGameOver, onScoreUpdate }) => {
       
       // Set ground position
       gameState.ground.y = containerHeight - gameState.ground.height;
+      
+      // Scale obstacle gap based on screen height to make it playable on small screens
+      const minGap = 120; // Minimum gap size in pixels
+      const idealGap = containerHeight * 0.32; // 32% of screen height
+      gameState.obstacleGap = Math.max(minGap, idealGap);
+      
+      // Adjust pipe width based on screen width
+      const minWidth = 40; // Minimum width in pixels
+      const idealWidth = containerWidth * 0.08; // 8% of screen width
+      gameState.obstacleWidth = Math.max(minWidth, Math.min(60, idealWidth));
+      
+      // Adjust obstacle spawn rate based on screen width
+      // Spawn faster on larger screens
+      const isMobile = containerWidth < 640;
+      const baseSpawnRate = isMobile ? 2200 : 1800;
+      gameState.obstacleSpawnRate = baseSpawnRate;
+      
+      // Adjust obstacle speed based on screen size
+      // Faster on larger screens
+      const baseSpeed = isMobile ? 2 : 3;
+      gameState.obstacleSpeed = baseSpeed;
+      
+      // Adjust player physics based on screen size
+      gameState.player.gravity = isMobile ? 0.4 : 0.5;
+      gameState.player.jump = isMobile ? -7 : -8.5;
     };
     
     resizeCanvas();
@@ -366,12 +420,31 @@ const GameCanvas = ({ onGameOver, onScoreUpdate }) => {
         // Spawn obstacles
         if (timestamp - gameState.lastObstacleSpawn > gameState.obstacleSpawnRate) {
           const gapPosition = Math.random() * (canvas.height - gameState.obstacleGap - gameState.ground.height - 80) + 50;
+          
+          // For the first obstacle, position it further away (if this is the first obstacle)
+          const isFirstObstacle = gameState.obstacles.length === 0;
+          const startX = isFirstObstacle 
+            ? canvas.width + (canvas.width * 0.3) // First obstacle starts further away (30% of screen width extra)
+            : canvas.width;
+          
           gameState.obstacles.push({
-            x: canvas.width,
+            x: startX,
             topHeight: gapPosition,
             bottomY: gapPosition + gameState.obstacleGap,
             passed: false
           });
+          
+          // Increase difficulty slightly as score increases
+          if (score > 10 && gameState.obstacleSpawnRate > 1200) {
+            // Gradually reduce spawn rate as score increases (faster spawning)
+            gameState.obstacleSpawnRate = Math.max(1200, gameState.obstacleSpawnRate - 20);
+          }
+          
+          // Pay the money - increase difficulty significantly at score 25
+          if (score >= 25) {
+            gameState.obstacleSpeed = Math.min(5, gameState.obstacleSpeed * 1.005); // Gradually increase speed
+          }
+          
           gameState.lastObstacleSpawn = timestamp;
         }
         
@@ -543,7 +616,8 @@ const GameCanvas = ({ onGameOver, onScoreUpdate }) => {
           return;
         }
         
-        if (gameOver) {
+        // Don't restart if the score form is showing
+        if (gameOver && !showScoreForm) {
           setGameOver(false);
           setScore(0);
           gameStateRef.current.obstacles = [];
@@ -570,22 +644,27 @@ const GameCanvas = ({ onGameOver, onScoreUpdate }) => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [gameStarted, gameOver, waitingToStart, playFlap]);
+  }, [gameStarted, gameOver, waitingToStart, playFlap, showScoreForm]);
   
-  // Handle touch events specifically for mobile
+  // Add global touch event handling for mobile
   useEffect(() => {
-    // Prevent default touch behavior to avoid scrolling while playing
-    const preventScroll = (e) => {
-      if (gameStarted && !gameOver) {
+    // Function to prevent default touch behavior
+    const preventTouchDefault = (e) => {
+      if (gameStarted || waitingToStart) {
         e.preventDefault();
       }
     };
     
-    document.addEventListener('touchmove', preventScroll, { passive: false });
+    // Add event listeners
+    document.addEventListener('touchstart', preventTouchDefault, { passive: false });
+    document.addEventListener('touchmove', preventTouchDefault, { passive: false });
+    
+    // Clean up
     return () => {
-      document.removeEventListener('touchmove', preventScroll);
+      document.removeEventListener('touchstart', preventTouchDefault);
+      document.removeEventListener('touchmove', preventTouchDefault);
     };
-  }, [gameStarted, gameOver]);
+  }, [gameStarted, waitingToStart]);
   
   // Handle direct click on canvas - update to use the same logic
   const handleClick = (e) => {
@@ -594,13 +673,13 @@ const GameCanvas = ({ onGameOver, onScoreUpdate }) => {
     
     // Use the same logic as the pointer event handler
     if (waitingToStart) {
-      console.log('Starting game from canvas click');
       setWaitingToStart(false);
       setGameStarted(true);
       return;
     }
     
-    if (gameOver) {
+    // Don't restart if the score form is showing
+    if (gameOver && !showScoreForm) {
       setGameOver(false);
       setScore(0);
       gameStateRef.current.obstacles = [];
@@ -612,7 +691,12 @@ const GameCanvas = ({ onGameOver, onScoreUpdate }) => {
     
     if (gameStarted && !gameOver) {
       if (gameStateRef.current.jumpCooldown > 0) return;
-      gameStateRef.current.player.velocity = gameStateRef.current.player.jump;
+      
+      // Make jump force slightly stronger on mobile for better playability
+      const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const jumpForce = isMobile ? gameStateRef.current.player.jump * 1.1 : gameStateRef.current.player.jump;
+      
+      gameStateRef.current.player.velocity = jumpForce;
       gameStateRef.current.jumpCooldown = gameStateRef.current.maxJumpCooldown;
       playFlap();
     }
@@ -634,7 +718,18 @@ const GameCanvas = ({ onGameOver, onScoreUpdate }) => {
     <div 
       className="w-full h-full flex items-center justify-center touch-none"
       onClick={handleClick}
-      onTouchStart={handleClick}
+      onTouchStart={(e) => {
+        e.preventDefault();
+        handleClick(e);
+      }}
+      style={{ 
+        touchAction: 'none',
+        WebkitTouchCallout: 'none',
+        WebkitUserSelect: 'none',
+        MozUserSelect: 'none',
+        msUserSelect: 'none',
+        userSelect: 'none'
+      }}
     >
       <canvas
         ref={canvasRef}

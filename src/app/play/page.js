@@ -3,15 +3,21 @@
 import { useState, useEffect, useCallback } from 'react';
 import GameCanvas from './components/GameCanvas';
 import GameHUD from './components/GameHUD';
+import HighScoreList from './components/HighScoreList';
+import { addHighScore, getHighestPersonalScore } from './components/ScoreService';
 
 export default function Play() {
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
-  const [highScores, setHighScores] = useState([]);
   const [showScoreForm, setShowScoreForm] = useState(false);
   const [nameInput, setNameInput] = useState("");
+  const [viewportHeight, setViewportHeight] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showDebugButton, setShowDebugButton] = useState(false);
 
   // Simple styles for consistent text rendering
   const textStyle = {
@@ -20,10 +26,33 @@ export default function Play() {
     letterSpacing: '1px'
   };
 
+  // Update viewport height on resize and check if we're on mobile
+  useEffect(() => {
+    const updateViewportHeight = () => {
+      setViewportHeight(window.innerHeight);
+      // Force redraw by updating CSS var
+      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+      // Check if we're on mobile
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    // Set initial height
+    updateViewportHeight();
+    
+    // Update on resize and orientation change
+    window.addEventListener('resize', updateViewportHeight);
+    window.addEventListener('orientationchange', updateViewportHeight);
+    
+    return () => {
+      window.removeEventListener('resize', updateViewportHeight);
+      window.removeEventListener('orientationchange', updateViewportHeight);
+    };
+  }, []);
+
   // Handle space bar in the score form
   const handleKeyDown = useCallback((e) => {
     // For game over screen, allow restarting with space
-    if ((e.code === 'Space' || e.key === ' ' || e.keyCode === 32) && gameOver && !showScoreForm) {
+    if ((e.code === 'Space' || e.key === ' ' || e.keyCode === 32) && gameOver && !showScoreForm && !showLeaderboard) {
       e.preventDefault();
       handleRestart();
     }
@@ -35,22 +64,25 @@ export default function Play() {
         handleSubmitScore(e);
       }
     }
-  }, [gameOver, showScoreForm, nameInput]);
 
-  // Load high scores from localStorage on component mount
-  useEffect(() => {
-    try {
-      const storedScores = localStorage.getItem("flappyHighScores");
-      if (storedScores) {
-        setHighScores(JSON.parse(storedScores));
-      }
-      const storedHighScore = localStorage.getItem("flappyHighScore");
-      if (storedHighScore) {
-        setHighScore(parseInt(storedHighScore));
-      }
-    } catch (error) {
-      console.error("Error loading high scores:", error);
+    // Close leaderboard with Escape key
+    if (e.key === 'Escape' && showLeaderboard) {
+      e.preventDefault();
+      setShowLeaderboard(false);
     }
+  }, [gameOver, showScoreForm, nameInput, showLeaderboard]);
+
+  // Load high scores on component mount
+  useEffect(() => {
+    // Get the personal high score
+    async function loadHighScore() {
+      const personalBest = await getHighestPersonalScore();
+      if (personalBest > 0) {
+        setHighScore(personalBest);
+      }
+    }
+    
+    loadHighScore();
     
     // Add global keyboard handler
     window.addEventListener('keydown', handleKeyDown);
@@ -62,12 +94,17 @@ export default function Play() {
 
   const handleGameOver = (finalScore) => {
     setGameOver(true);
-    setShowScoreForm(finalScore > 5); // Only show score form if score is worth saving
+    
+    // Only show score form if the score is greater than 0
+    if (finalScore > 0) {
+      setShowScoreForm(true);
+    } else {
+      setShowScoreForm(false);
+    }
     
     // Update high score if necessary
     if (finalScore > highScore) {
       setHighScore(finalScore);
-      localStorage.setItem("flappyHighScore", finalScore.toString());
     }
   };
 
@@ -80,75 +117,136 @@ export default function Play() {
     setGameStarted(true);
     setScore(0);
     setShowScoreForm(false);
+    setShowLeaderboard(false);
   };
 
-  const handleSubmitScore = (e) => {
+  const toggleLeaderboard = () => {
+    setShowLeaderboard(!showLeaderboard);
+  };
+
+  const handleSubmitScore = async (e) => {
     if (e) e.preventDefault();
-    if (!nameInput) return;
+    if (!nameInput || isSubmitting) return;
     
-    const newHighScores = [...highScores, { name: nameInput, score }];
-    newHighScores.sort((a, b) => b.score - a.score);
+    setIsSubmitting(true);
     
-    // Only keep top 10 scores
-    const topScores = newHighScores.slice(0, 10);
-    
-    setHighScores(topScores);
-    localStorage.setItem("flappyHighScores", JSON.stringify(topScores));
-    
-    setNameInput("");
-    setShowScoreForm(false);
+    try {
+      // Save score to our score service
+      await addHighScore(nameInput, score);
+      
+      // Close score form
+      setShowScoreForm(false);
+      // Automatically show leaderboard after submitting
+      setShowLeaderboard(true);
+    } catch (error) {
+      console.error("Error submitting score:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Try to load or get player name from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined' && showScoreForm) {
+      const savedName = localStorage.getItem('flappyPlayerName');
+      if (savedName) {
+        setNameInput(savedName);
+      } else {
+        // Clear the input if no saved name exists
+        setNameInput('');
+      }
+    }
+  }, [showScoreForm]);
+
+  // Save player name when they enter it
+  const updatePlayerName = (name) => {
+    setNameInput(name);
+    // Save the name for future games
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('flappyPlayerName', name);
+    }
   };
 
   return (
     <div 
-      className="relative w-full h-full flex items-center justify-center overflow-hidden bg-[#70C5CE] touch-none" 
+      className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden bg-[#70C5CE] touch-none" 
+      style={{ height: viewportHeight ? `${viewportHeight}px` : '100vh' }}
       tabIndex="0"
     >
       {/* Game Canvas */}
-      <GameCanvas 
-        onGameOver={handleGameOver} 
-        onScoreUpdate={handleScoreUpdate}
-      />
+      <div className="relative flex-grow w-full flex items-center justify-center">
+        <GameCanvas 
+          onGameOver={handleGameOver} 
+          onScoreUpdate={handleScoreUpdate}
+          showScoreForm={showScoreForm}
+        />
       
-      {/* HUD Elements */}
-      <GameHUD 
-        score={score}
-        highScore={highScore}
-        gameStarted={gameStarted}
-        gameOver={gameOver}
-        onRestart={handleRestart}
-      />
+        {/* HUD Elements */}
+        <GameHUD 
+          score={score}
+          highScore={highScore}
+          gameStarted={gameStarted}
+          gameOver={gameOver}
+          onRestart={handleRestart}
+          onShowLeaderboard={toggleLeaderboard}
+        />
+      </div>
+      
+      {/* Leaderboard button - only show on start screen or game over screen */}
+      {(!gameStarted || gameOver) && !showScoreForm && !showLeaderboard && (
+        <div className="absolute bottom-4 z-10">
+          <button
+            onClick={toggleLeaderboard}
+            className="bg-[#DEA430] border-2 border-black text-black font-bold py-2 px-4 rounded-lg shadow-md hover:bg-[#F5BB40] transition-colors"
+            style={textStyle}
+          >
+            VIEW LEADERBOARD
+          </button>
+        </div>
+      )}
       
       {/* Score submission form */}
       {showScoreForm && gameOver && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-20 px-4">
           <div className="bg-[#DEA430] border-4 border-black rounded-xl p-4 sm:p-6 max-w-xs mx-auto text-center shadow-xl">
             <h2 className="text-xl sm:text-2xl font-bold text-black mb-3 sm:mb-4" style={textStyle}>NEW SCORE!</h2>
-            <p className="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3" style={textStyle}>Score: {score}</p>
+            <p className="text-base sm:text-lg font-bold text-black mb-2 sm:mb-3" style={textStyle}>Score: {score}</p>
             
             <form onSubmit={handleSubmitScore} className="mt-4 space-y-2">
+              <label htmlFor="player-name" className="block text-black text-sm font-bold mb-1" style={textStyle}>
+                ENTER YOUR NAME:
+              </label>
               <input
+                id="player-name"
                 type="text"
-                placeholder="NAME"
-                className="border-2 border-black p-2 rounded w-full bg-white text-center uppercase"
+                placeholder="YOUR NAME HERE"
+                className="border-2 border-black p-2 rounded w-full bg-white text-center uppercase text-black"
                 style={{ ...textStyle, fontSize: '14px' }}
                 value={nameInput}
-                onChange={(e) => setNameInput(e.target.value.substring(0, 10))}
-                maxLength={10}
+                onChange={(e) => updatePlayerName(e.target.value.substring(0, 15))}
+                maxLength={15}
                 autoFocus
               />
               <div className="flex gap-2 mt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-green-500 text-white px-4 py-2 rounded-lg border-b-4 border-green-700 hover:bg-green-600 transition"
+                  disabled={isSubmitting || !nameInput.trim()}
+                  className={`flex-1 text-white px-4 py-2 rounded-lg border-b-4 transition ${
+                    isSubmitting || !nameInput.trim()
+                      ? 'bg-gray-400 border-gray-600 cursor-not-allowed' 
+                      : 'bg-green-600 border-green-800 hover:bg-green-700'
+                  }`}
                   style={{ ...textStyle, fontSize: '14px' }}
                 >
-                  SAVE
+                  {isSubmitting ? 'SAVING...' : 'SAVE'}
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowScoreForm(false)}
-                  className="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg border-b-4 border-red-700 hover:bg-red-600 transition"
+                  onClick={() => {
+                    setShowScoreForm(false);
+                    setShowLeaderboard(true);
+                  }}
+                  className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg border-b-4 border-red-800 hover:bg-red-700 transition"
                   style={{ ...textStyle, fontSize: '14px' }}
                 >
                   SKIP
@@ -159,21 +257,12 @@ export default function Play() {
         </div>
       )}
       
-      {/* High scores display - only show before game has started */}
-      {!gameStarted && !gameOver && highScores.length > 0 && (
-        <div className="absolute bottom-4 left-4 bg-[#DEA430] border-2 border-black rounded-lg px-4 py-3 shadow-md max-w-xs">
-          <h3 className="text-xl font-bold mb-2 text-white" style={textStyle}>TOP SCORES</h3>
-          <div className="bg-white border-2 border-black p-2 rounded">
-            <ul className="space-y-2">
-              {highScores.slice(0, 5).map((entry, idx) => (
-                <li key={idx} className="text-black flex justify-between text-sm" style={{ ...textStyle, fontSize: '10px' }}>
-                  <span>{idx + 1}. {entry.name}</span>
-                  <span className="font-bold">{entry.score}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+      {/* Leaderboard modal */}
+      {showLeaderboard && (
+        <HighScoreList 
+          show={showLeaderboard} 
+          onClose={() => setShowLeaderboard(false)} 
+        />
       )}
     </div>
   );
