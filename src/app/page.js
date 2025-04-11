@@ -52,12 +52,22 @@ function StoryModal({ story, onClose }) {
       onClick={onClose}
     >
       <motion.div
-        className="bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-10 max-w-[90%] sm:max-w-xl w-full shadow-2xl text-center mx-auto"
+        className="bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-10 max-w-[90%] sm:max-w-xl w-full shadow-2xl text-center mx-auto relative"
         initial={{ scale: 0.8 }}
         animate={{ scale: 1 }}
         exit={{ scale: 0.8 }}
         onClick={(e) => e.stopPropagation()}
       >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-[#4A5D4F] hover:text-[#4A5D4F]/70 transition"
+          aria-label="Close story modal"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
         <h2 className="text-lg sm:text-xl md:text-2xl font-[fonts.heading] font-bold text-[#4A5D4F] mb-2 sm:mb-3 md:mb-4">{story.title}</h2>
         <p className="text-sm sm:text-base md:text-lg text-[#4A5D4F]/80 mb-4 sm:mb-5 md:mb-6 whitespace-pre-line leading-relaxed">{story.content}</p>
         <button 
@@ -77,16 +87,22 @@ export default function Page() {
   const [visited, setVisited] = useState(new Set());
   const [hasUnlockedGame, setHasUnlockedGame] = useState(false);
   const [showUnlockPopup, setShowUnlockPopup] = useState(false);
+  const [popupDismissed, setPopupDismissed] = useState(false);
 
   useEffect(() => {
-    if (hasUnlockedGame && !showUnlockPopup) {
+    if (hasUnlockedGame && !showUnlockPopup && !popupDismissed) {
       const timer = setTimeout(() => {
         setShowUnlockPopup(true);
       }, 5000);
       
       return () => clearTimeout(timer);
     }
-  }, [hasUnlockedGame, showUnlockPopup]);
+  }, [hasUnlockedGame, showUnlockPopup, popupDismissed]);
+
+  const handleDismissPopup = () => {
+    setShowUnlockPopup(false);
+    setPopupDismissed(true);
+  };
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -120,7 +136,7 @@ export default function Page() {
             priority
             quality={85}
             placeholder="blur"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRseHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/2wBDAR4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRseHh4eHh4eHh4eHh4eHh4eHh4eHh7/2wBDAR4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 80vw"
             className="blur-[4px] object-cover object-center"
             loading="eager"
@@ -210,9 +226,20 @@ export default function Page() {
                 className="w-full flex items-start sm:items-center space-x-3 sm:space-x-4 text-left"
                 whileHover={{ scale: 1.02 }}
               >
-                <div className="text-2xl sm:text-3xl bg-white rounded-full p-2 shadow-sm flex-shrink-0">{story.icon}</div>
+                <div className="text-2xl sm:text-3xl bg-white rounded-full p-2 shadow-sm flex-shrink-0 relative">
+                  {story.icon}
+                  {visited.has(story.title) && (
+                    <div className="absolute -top-1 -right-1 bg-[#729b79] text-white rounded-full p-0.5 shadow-sm">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </div>
+                  )}
+                </div>
                 <div>
-                  <h3 className="text-lg sm:text-xl font-[fonts.heading] font-bold text-[#4A5D4F] mb-1 sm:mb-0">{story.title}</h3>
+                  <h3 className={`text-lg sm:text-xl font-[fonts.heading] font-bold ${visited.has(story.title) ? 'text-[#729b79]' : 'text-[#4A5D4F]'} mb-1 sm:mb-0`}>
+                    {story.title}
+                  </h3>
                   <p className="text-sm sm:text-base text-[#4A5D4F]/80">{story.content.slice(0, 100)}...</p>
                 </div>
               </motion.button>
@@ -232,8 +259,22 @@ export default function Page() {
             className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            onClick={handleDismissPopup}
           >
-            <div className="bg-white rounded-3xl p-10 max-w-lg text-center shadow-2xl">
+            <div 
+              className="bg-white rounded-3xl p-10 max-w-lg text-center shadow-2xl relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={handleDismissPopup}
+                className="absolute top-4 right-4 text-[#4A5D4F] hover:text-[#4A5D4F]/70 transition"
+                aria-label="Close popup"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
               <h2 className="text-2xl font-bold text-[#475b63] mb-4">🎉 You've Unlocked a Secret!</h2>
               <p className="text-[#2e2c2f] mb-6">
                 By exploring every chapter of our story, you've discovered a mini-game inspired by our favorite memories.
