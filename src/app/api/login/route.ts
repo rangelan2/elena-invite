@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const PASSWORD = 'celebrate2025'; // Move this to an environment variable in production
+const PASSWORD = process.env.SITE_PASSWORD || 'celebrate2025';
 
 export async function POST(request: Request) {
   try {

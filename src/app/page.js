@@ -90,7 +90,7 @@ export default function Page() {
         <div className="flex-1">
           {/* Empty div for centering */}
         </div>
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-[#4A5D4F] max-w-2xl text-center font-medium tracking-wide">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-white max-w-2xl text-center font-medium tracking-wide bg-black/20 backdrop-blur-sm px-6 py-3 rounded-lg shadow-sm">
           An invitation to gather in celebration of<br className="hidden sm:block" />Elena & Anthony's engagement
         </h1>
         <div className="flex-1">
@@ -98,18 +98,26 @@ export default function Page() {
         </div>
       </header>
       <section className="relative min-h-screen px-4 sm:px-6 py-32 sm:py-40 text-center flex flex-col justify-center items-center space-y-6 overflow-hidden">
-        <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center"
-          style={{
-            backgroundImage: `url('/images/hero-background.png')`
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-white/80 to-transparent h-1/3"></div>
-        <div className="relative z-10 bg-white/70 backdrop-blur-sm p-6 sm:p-8 rounded-xl shadow-md max-w-3xl">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-[fonts.heading] text-[#4A5D4F] font-bold leading-tight mb-6">
+        <div className="absolute inset-0 w-full h-full">
+          <Image
+            src="/images/flowery-hero-optimized.jpg"
+            alt="Coastal landscape with flowers"
+            fill
+            priority
+            quality={85}
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRseHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/2wBDAR4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
+            className="blur-[4px] object-cover object-center"
+            loading="eager"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-black/40"></div>
+        </div>
+        <div className="relative z-10 bg-black/20 backdrop-blur-md p-6 sm:p-8 rounded-xl shadow-lg max-w-3xl mx-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-[fonts.heading] text-white font-bold leading-tight mb-6">
             You're not just invited to the party,<br className="hidden sm:block" />you're part of our story.
           </h1>
-          <div className="text-base sm:text-lg text-[#4A5D4F]/80 space-y-3">
+          <div className="text-base sm:text-lg text-white/90 space-y-3">
             <p><strong>Saturday, June 14, 2025</strong></p>
             <p>7:00 – 11:00 PM</p>
             <p>Saturn Road · 276 Court St, Brooklyn, NY</p>
@@ -118,13 +126,13 @@ export default function Page() {
           <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <button
               onClick={() => scrollToSection('our-story')}
-              className="w-full sm:w-auto inline-block bg-[#729b79] hover:bg-[#5c7f66] text-white font-semibold px-6 py-3 rounded-lg transition text-center"
+              className="w-full sm:w-auto inline-block bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-semibold px-6 py-3 rounded-lg transition text-center"
             >
               Begin Our Journey
             </button>
             <button
               onClick={() => scrollToSection('rsvp')}
-              className="w-full sm:w-auto inline-block bg-white border border-[#729b79] text-[#729b79] hover:bg-[#f9f9f9] font-semibold px-6 py-3 rounded-lg transition text-center"
+              className="w-full sm:w-auto inline-block bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 font-semibold px-6 py-3 rounded-lg transition text-center"
             >
               RSVP
             </button>
@@ -199,6 +207,20 @@ export default function Page() {
         <p className="mb-6 sm:mb-8 text-base sm:text-lg text-[#4A5D4F]/80 max-w-xl mx-auto">
           Leave us a note, a memory, or a wish—your words will help shape this gathering.
         </p>
+        <p className="mb-6 sm:mb-8 text-base sm:text-lg text-[#4A5D4F]/80 max-w-xl mx-auto">
+          Kindly reply by June 1, 2024.
+        </p>
+        <div className="w-full max-w-xl mx-auto space-y-4 mb-8">
+          <p className="text-base sm:text-lg text-[#4A5D4F]/80">
+            <span className="font-semibold">What:</span> An evening to celebrate our engagement full of joy, stories, and the people we love most.
+          </p>
+          <p className="text-base sm:text-lg text-[#4A5D4F]/80">
+            <span className="font-semibold">Where:</span> Saturn Road (276 Court St, Brooklyn, NY 11231)
+          </p>
+          <p className="text-base sm:text-lg text-[#4A5D4F]/80">
+            <span className="font-semibold">When:</span> Saturday, June 14, 2025 from 7:00 PM – 11:00 PM
+          </p>
+        </div>
         <div className="w-full max-w-xl mx-auto">
           <a
             href="https://forms.gle/v51WCerpvKfHaCZ69"

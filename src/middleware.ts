@@ -1,13 +1,25 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Update this to match your deployment URL
-const DEPLOYMENT_URL = 'https://party.elenaandanthony.com'
-
-// This password should be moved to an environment variable
-const PASSWORD = 'celebrate2025'
+// Get configuration from environment variables
+const DEPLOYMENT_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://party.elenaandanthony.com'
+const PASSWORD = process.env.SITE_PASSWORD || 'celebrate2025'
 
 export function middleware(request: NextRequest) {
+  const response = NextResponse.next()
+
+  // Add security headers
+  response.headers.set('X-DNS-Prefetch-Control', 'on')
+  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
+  response.headers.set('X-XSS-Protection', '1; mode=block')
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN')
+  response.headers.set('X-Content-Type-Options', 'nosniff')
+  response.headers.set('Referrer-Policy', 'origin-when-cross-origin')
+  response.headers.set(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self'"
+  )
+
   // Check if the user is authenticated
   const authCookie = request.cookies.get('auth')
   const isAuthenticated = authCookie?.value === 'true'
@@ -15,12 +27,12 @@ export function middleware(request: NextRequest) {
 
   // Allow access to API routes
   if (request.nextUrl.pathname.startsWith('/api')) {
-    return NextResponse.next()
+    return response
   }
 
   // Allow access to social preview metadata
   if (request.headers.get('user-agent')?.toLowerCase().includes('bot')) {
-    return NextResponse.next()
+    return response
   }
 
   // Allow access to static files and images
@@ -29,7 +41,7 @@ export function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/images') ||
     request.nextUrl.pathname.startsWith('/favicon.ico')
   ) {
-    return NextResponse.next()
+    return response
   }
 
   // Redirect to login if not authenticated and not on login page
@@ -46,7 +58,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  return NextResponse.next()
+  return response
 }
 
 export const config = {
