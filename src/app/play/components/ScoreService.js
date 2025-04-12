@@ -22,7 +22,7 @@ const API_BASE_URL = '/api/scores'; // Use relative path for API routes
  * @param {number} score - Player score
  * @returns {Promise<string|null>} - ID of the new score or null on failure
  */
-async function addHighScoreToApi(name, score) {
+async function _addHighScoreToApi(name, score) {
   try {
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
@@ -136,7 +136,7 @@ function addPersonalScore(score) {
 // Create the new wrapper function - this is the one we export
 export async function addHighScore(name, score) {
   // First, add to the global leaderboard via API
-  const scoreId = await addHighScoreToApi(name, score); // Call the internal function
+  const scoreId = await _addHighScoreToApi(name, score); // Updated call here
   
   // If successful, also add the score to the local personal list
   if (scoreId && isBrowser) {
