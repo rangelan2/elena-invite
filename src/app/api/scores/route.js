@@ -55,7 +55,7 @@ export async function GET(request) {
     return NextResponse.json(topScores);
 
   } catch (error) {
-    console.error("Error fetching scores:", error);
+    console.error("Detailed error fetching scores:", error);
     return NextResponse.json({ error: 'Failed to fetch scores' }, { status: 500 });
   }
 }
@@ -113,7 +113,7 @@ export async function POST(request) {
     return NextResponse.json({ message: 'Score added successfully', scoreId: newScore.id }, { status: 201 });
 
   } catch (error) {
-    console.error("Error adding score:", error);
+    console.error("Detailed error adding score:", error);
     // Handle potential rate limits or other KV errors
      if (error.message.includes('RATE_LIMIT')) {
        return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
