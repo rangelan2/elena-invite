@@ -31,13 +31,23 @@ export async function GET(request) {
 
     // Retrieve scores from KV store (using lrange to get all elements, then sorting/slicing)
     // KV stores lists, we'll treat it like a sorted set by managing sorting ourselves.
-    let scores = await kv.lrange(SCORES_KEY, 0, -1) || [];
+    let scoreStrings = await kv.lrange(SCORES_KEY, 0, -1) || [];
+    
+    // Parse the score strings into objects
+    let parsedScores = scoreStrings.map(s => {
+      try {
+        return JSON.parse(s);
+      } catch (e) {
+        console.error("Failed to parse score string in GET:", s, e);
+        return null; // Handle potential parsing errors
+      }
+    }).filter(s => s !== null); // Filter out any nulls from parsing errors
 
-    // Sort by score descending
-    scores.sort((a, b) => b.score - a.score);
+    // Sort by score descending (now using parsed objects)
+    parsedScores.sort((a, b) => b.score - a.score);
 
-    // Add Elena's special score
-    const scoresWithElena = addElenaScore(scores);
+    // Add Elena's special score (pass parsed objects)
+    const scoresWithElena = addElenaScore(parsedScores);
 
     // Limit the number of scores returned
     const topScores = scoresWithElena.slice(0, limit);
