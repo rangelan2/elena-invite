@@ -13,6 +13,7 @@
     "test": "npm run lint && npm run test:a11y && npm run test:lighthouse"
   },
   "dependencies": {
+    "@vercel/kv": "^3.0.0",
     "critters": "^0.0.23",
     "framer-motion": "^12.6.3",
     "lucide-react": "^0.487.0",
