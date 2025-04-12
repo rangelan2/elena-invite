@@ -377,14 +377,24 @@ function renderFallbackTitle(ctx) {
  * Renders fallback message when image is not available
  */
 function renderFallbackMessage(ctx) {
+  // Style for white text
   ctx.fillStyle = 'white';
-  ctx.strokeStyle = 'black';
-  ctx.lineWidth = 2;
-  ctx.font = 'bold 24px Arial';
+  ctx.font = '16px "Press Start 2P"'; // Keep reduced font size for multi-line
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.strokeText('Tap to Start', GAME_SETTINGS.CANVAS_WIDTH / 2, 220);
-  ctx.fillText('Tap to Start', GAME_SETTINGS.CANVAS_WIDTH / 2, 220);
+  
+  const lines = [
+    "Make sure the ring gets down the aisle.",
+    "", // Empty line for spacing
+    "Avoid the pews and make it to I do!"
+  ];
+  
+  const lineHeight = 20; // Adjust line height as needed
+  const startY = GAME_SETTINGS.CANVAS_HEIGHT / 2; // Adjust starting Y position
+
+  lines.forEach((line, index) => {
+    const yPos = startY + index * lineHeight;
+    ctx.fillText(line, GAME_SETTINGS.CANVAS_WIDTH / 2, yPos);
+  });
 }
 
 /**
@@ -634,18 +644,20 @@ export function renderGameOver(ctx, gameOverImage, scoreboardImage, score, highS
   const buttonY = boxY + boxHeight + 60;
   const buttonHeight = 32;
   const buttonPadding = 10;
-  const buttonMargin = 10;
+  const buttonMargin = 10; // Reverted margin
   
-  // Play Again button
+  // Play Again button text
   const playAgainText = 'Play Again';
+  
+  // Calculate button width
+  ctx.font = 'bold 16px Arial'; // Ensure font is set before measuring
   const playAgainWidth = ctx.measureText(playAgainText).width + buttonPadding * 2;
-  const playAgainX = canvasWidth / 2 - playAgainWidth / 2; // Center the button
+  const playAgainX = canvasWidth / 2 - playAgainWidth / 2; // Center the single button
   
   // Draw Play Again button (green with black border)
-  ctx.fillStyle = '#8BC34A';
+  ctx.fillStyle = '#8BC34A'; // Green
   ctx.strokeStyle = 'black';
-  
-  // Rounded rectangle for Play Again button
+  ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.roundRect(playAgainX, buttonY, playAgainWidth, buttonHeight, 8);
   ctx.fill();
@@ -653,10 +665,12 @@ export function renderGameOver(ctx, gameOverImage, scoreboardImage, score, highS
   
   // Play Again text
   ctx.fillStyle = 'black';
+  ctx.textAlign = 'center'; 
+  ctx.textBaseline = 'middle';
   ctx.fillText(playAgainText, playAgainX + playAgainWidth / 2, buttonY + buttonHeight / 2);
   
   // Store button positions for click detection
-  // These values will be used by the game to detect clicks on buttons
+  // Only return the play again button as it was originally
   return {
     playAgainButton: {
       x: playAgainX,
@@ -664,6 +678,7 @@ export function renderGameOver(ctx, gameOverImage, scoreboardImage, score, highS
       width: playAgainWidth,
       height: buttonHeight
     }
+    // Removed backToRsvpButton
   };
 }
 

@@ -102,8 +102,7 @@ export default function Game({
   // Update the handleTap function to set the game state to PLAYING if it's in MENU or READY state
   const handleTap = useCallback((e) => {
     // If on game over screen, check if buttons were clicked
-    if (gameStateRef.current.gameState === GAME_STATES.GAME_OVER && 
-        buttonAreasRef.current.playAgainButton) {
+    if (gameStateRef.current.gameState === GAME_STATES.GAME_OVER) {
       
       // Get canvas and calculate click position relative to canvas
       const canvas = canvasRef.current;
@@ -117,29 +116,35 @@ export default function Game({
       
       // Handle both mouse click and touch events
       if (e.type === 'touchstart') {
+        e.preventDefault(); 
         x = (e.touches[0].clientX - rect.left) * scaleX;
         y = (e.touches[0].clientY - rect.top) * scaleY;
       } else if (e.type === 'click') {
         x = (e.clientX - rect.left) * scaleX;
         y = (e.clientY - rect.top) * scaleY;
       } else {
-        // Keyboard or unknown event type
+        // Handle keyboard space/up arrow as Play Again for accessibility
+        if (e.type === 'keyboard' && (e.key === ' ' || e.code === 'Space' || e.key === 'ArrowUp')) {
+          console.log("Play Again triggered by keyboard");
+          gameStateRef.current = createInitialGameState(); 
+          return; 
+        }
         return;
       }
       
-      console.log("Canvas click detected at:", x, y);
+      console.log("Canvas click/touch detected at:", x, y);
       console.log("Button areas:", buttonAreasRef.current);
       
-      // Check if Play Again button was clicked
+      // Check if Play Again button (drawn on canvas) was clicked
       const playAgainBtn = buttonAreasRef.current.playAgainButton;
-      if (x >= playAgainBtn.x && 
+      if (playAgainBtn && 
+          x >= playAgainBtn.x && 
           x <= playAgainBtn.x + playAgainBtn.width && 
           y >= playAgainBtn.y && 
           y <= playAgainBtn.y + playAgainBtn.height) {
-        console.log("Play Again button clicked");
-        // Reset game
+        console.log("Play Again button (canvas fallback) clicked");
         gameStateRef.current = createInitialGameState();
-        return;
+        return; // Exit after handling click
       }
     }
     
@@ -148,11 +153,16 @@ export default function Game({
         gameStateRef.current.gameState === GAME_STATES.READY) {
       console.log("Starting game");
       gameStateRef.current.gameState = GAME_STATES.PLAYING;
+      gameStateRef.current = handleGameInput(gameStateRef.current);
+      return; 
     }
     
-    // Regular game input handling
-    gameStateRef.current = handleGameInput(gameStateRef.current);
-  }, []);
+    // Regular game input handling (only if playing)
+    if (gameStateRef.current.gameState === GAME_STATES.PLAYING) {
+        gameStateRef.current = handleGameInput(gameStateRef.current);
+    }
+
+  }, []); // Removed router dependency
 
   // Start game loop once assets are loaded and canvas is ready
   useEffect(() => {

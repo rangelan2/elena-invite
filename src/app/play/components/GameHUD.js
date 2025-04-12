@@ -169,7 +169,7 @@ const GameHUD = ({ score, highScore, gameStarted, gameOver, onRestart, onShowLea
               )}
             </div>
             
-            <div className="flex gap-2 sm:gap-4 justify-center z-50">
+            <div className="flex flex-wrap gap-2 sm:gap-4 justify-center z-50">
               <button
                 onClick={onRestart}
                 className="pointer-events-auto z-50 bg-green-500 text-white px-3 sm:px-4 py-2 rounded-lg border-b-4 border-green-700 hover:bg-green-600 transition"
@@ -185,6 +185,17 @@ const GameHUD = ({ score, highScore, gameStarted, gameOver, onRestart, onShowLea
               >
                 VIEW SCORES
               </button>
+
+              {/* Added Back to RSVP Link/Button */}
+              <Link href="/" passHref legacyBehavior>
+                <a 
+                  className="pointer-events-auto z-50 bg-blue-500 text-white px-3 sm:px-4 py-2 rounded-lg border-b-4 border-blue-700 hover:bg-blue-600 transition inline-block"
+                  style={{ ...buttonStyle, fontSize: '13px' }}
+                  role="button"
+                >
+                  BACK TO RSVP
+                </a>
+              </Link>
             </div>
           </div>
           
