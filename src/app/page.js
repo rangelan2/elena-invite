@@ -344,28 +344,6 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="py-16 sm:py-20 px-4 sm:px-6 bg-white text-center">
-        <div className="my-4 flex items-center justify-center">
-          <div className="w-24 h-px bg-[#4A5D4F]/20"></div>
-          <div className="mx-4 text-[#4A5D4F]/40">❦</div>
-          <div className="w-24 h-px bg-[#4A5D4F]/20"></div>
-        </div>
-        <h2 className="text-3xl sm:text-4xl font-serif font-bold mb-4 sm:mb-6 text-[#4A5D4F]">For the Gentlemen</h2>
-        <p className="text-base sm:text-lg text-[#4A5D4F]/80 mb-6 max-w-xl mx-auto">
-          Click here for a guide on attire to ensure you're dressed for success at this celebration.
-        </p>
-        <div className="w-full max-w-xl mx-auto">
-          <a
-            href="https://r.mtdv.me/articles/mens-style-guide-elevated-backyard-soiree"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-[#729b79] hover:bg-[#5c7f66] text-white font-semibold px-8 py-4 rounded-lg transition text-lg"
-          >
-            Style Guide
-          </a>
-        </div>
-      </section>
-
       <footer className="bg-white py-8 sm:py-10 text-center text-sm sm:text-base text-[#4A5D4F]/70 px-4">
         <p>
           We can't wait to share this chapter—and the next—with you. <br className="hidden sm:block" />Love, Elena & Anthony
