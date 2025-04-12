@@ -67,12 +67,21 @@ export async function POST(request) {
       timestamp: new Date().toISOString(), // Use ISO string format
     };
 
-    // Add the new score to the list in KV
-    await kv.lpush(SCORES_KEY, newScore);
+    // Add the new score to the list in KV (stringify first)
+    await kv.lpush(SCORES_KEY, JSON.stringify(newScore));
 
     // Keep the list trimmed to MAX_SCORES
     // Retrieve all, sort, trim, and overwrite. This is simpler for KV lists.
-    let allScores = await kv.lrange(SCORES_KEY, 0, -1);
+    let scoreStrings = await kv.lrange(SCORES_KEY, 0, -1);
+    let allScores = scoreStrings.map(s => {
+      try {
+        return JSON.parse(s);
+      } catch (e) {
+        console.error("Failed to parse score string:", s, e);
+        return null; // Handle potential parsing errors
+      }
+    }).filter(s => s !== null); // Filter out any nulls from parsing errors
+    
     allScores.sort((a, b) => b.score - a.score);
     const trimmedScores = allScores.slice(0, MAX_SCORES);
 
@@ -84,7 +93,8 @@ export async function POST(request) {
     if (trimmedScores.length > 0) {
       // lpush pushes items one by one, so push them in reverse order to maintain sort
       for (let i = trimmedScores.length - 1; i >= 0; i--) {
-        multi.lpush(SCORES_KEY, trimmedScores[i]);
+        // Stringify before pushing back
+        multi.lpush(SCORES_KEY, JSON.stringify(trimmedScores[i]));
       }
     }
     await multi.exec();
