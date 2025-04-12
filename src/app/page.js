@@ -17,8 +17,20 @@ const storyMoments = [
   },
   {
     icon: "✈️",
-    title: "Doughnuts & Distance",
-    content: "Graduation hit.\nShe moved East. He stayed Midwest.\n\nThere were calls from the Singapore Zoo.\nTrain rides to Philly.\nLong-distance Doordash orders from Buckeye Donuts.\n\nThe spark dimmed.\nBut it never went out.\n\nEven when the story hit pause—\nIt was still playing."
+    title: "Donuts & Distance",
+    content: `Graduation. She moved East. He stayed Midwest.
+
+For years, they kept the line warm.
+
+The kind of calls that stretch past midnight and make you feel more like yourself when they're done.
+
+Long-distance Doordash orders from Buckeye Donuts.
+
+The spark dimmed.
+But it never went out.
+
+Even when the story hit pause -
+It was still playing.`
   },
   {
     icon: "🥂",
@@ -75,7 +87,7 @@ function StoryModal({ story, onClose }) {
           className="text-xs sm:text-sm text-[#4A5D4F] underline hover:text-[#4A5D4F]/70 transition py-1"
           aria-label="Close story modal"
         >
-          Back to the garden
+          Back to Our Story
         </button>
       </motion.div>
     </motion.div>
