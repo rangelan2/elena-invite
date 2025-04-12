@@ -113,11 +113,11 @@ const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm
       offset: 0
     },
     colors: {
-      sky: '#70C5CE',
+      sky: '#8B4513',
       ground: '#DED895',
-      pipe: '#8B4513',
-      pipeHighlight: '#A0522D',
-      pipeShadow: '#654321',
+      pipe: '#DEB887',
+      pipeHighlight: '#F5F5DC',
+      pipeShadow: '#A0522D',
       bird: '#FFDB4D',
       birdDetail: '#F37820',
       text: '#FFFFFF'

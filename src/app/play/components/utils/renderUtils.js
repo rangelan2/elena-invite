@@ -17,28 +17,16 @@ export function clearCanvas(ctx, width, height) {
  * Renders the background (sky and clouds)
  */
 export function renderBackground(ctx, clouds) {
-  // Draw sky background
-  const skyGradient = ctx.createLinearGradient(0, 0, 0, GAME_SETTINGS.CANVAS_HEIGHT);
-  skyGradient.addColorStop(0, '#70c5ce');
-  skyGradient.addColorStop(1, '#b3e5fc');
+  // Draw floor background
+  // const skyGradient = ctx.createLinearGradient(0, 0, 0, GAME_SETTINGS.CANVAS_HEIGHT);
+  // skyGradient.addColorStop(0, '#70c5ce');
+  // skyGradient.addColorStop(1, '#b3e5fc');
   
-  ctx.fillStyle = skyGradient;
+  ctx.fillStyle = '#8B4513'; // Wood brown for floor
   ctx.fillRect(0, 0, GAME_SETTINGS.CANVAS_WIDTH, GAME_SETTINGS.CANVAS_HEIGHT);
   
-  // Draw clouds (assuming cloud sprites are loaded elsewhere)
-  clouds.forEach(cloud => {
-    // This would need the cloud sprites to be loaded
-    // ctx.drawImage(cloudSprites[cloud.type], cloud.x, cloud.y);
-    
-    // For now, just draw a simple cloud shape as placeholder
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-    ctx.beginPath();
-    ctx.arc(cloud.x, cloud.y, 20, 0, Math.PI * 2);
-    ctx.arc(cloud.x + 15, cloud.y - 10, 15, 0, Math.PI * 2);
-    ctx.arc(cloud.x + 30, cloud.y, 20, 0, Math.PI * 2);
-    ctx.arc(cloud.x + 15, cloud.y + 10, 15, 0, Math.PI * 2);
-    ctx.fill();
-  });
+  // Keep cloud drawing logic if needed, or remove/comment if not desired for floor
+  // clouds.forEach(cloud => { ... });
 }
 
 /**
@@ -67,13 +55,17 @@ export function renderGround(ctx, groundOffset, groundImage) {
  * Fallback ground rendering when image is not available
  */
 function renderFallbackGround(ctx, groundY) {
-  ctx.fillStyle = '#ded895';
+  // Draw ground matching GameCanvas style
+  ctx.fillStyle = '#DED895'; // Main ground color from GameCanvas
   ctx.fillRect(0, groundY, GAME_SETTINGS.CANVAS_WIDTH, GAME_SETTINGS.GROUND_HEIGHT);
   
-  // Add some texture
-  ctx.fillStyle = '#c9b570';
-  for (let i = 0; i < GAME_SETTINGS.CANVAS_WIDTH; i += 20) {
-    ctx.fillRect(i, groundY + 10, 10, 5);
+  // Draw ground pattern (simplified version)
+  ctx.fillStyle = '#C0AB72'; // Pattern color from GameCanvas
+  const patternStep = 48; // Use a fixed step or adjust based on GAME_SETTINGS if needed
+  // Note: groundOffset is not available here, so pattern won't scroll
+  // If scrolling is desired, groundOffset needs to be passed or managed differently
+  for (let x = 0; x < GAME_SETTINGS.CANVAS_WIDTH; x += patternStep) {
+    ctx.fillRect(x, groundY + (GAME_SETTINGS.GROUND_HEIGHT / 4), patternStep/2, 24); // Adjusted Y position
   }
 }
 
@@ -120,33 +112,61 @@ export function renderBird(ctx, bird, birdSprites) {
  * Fallback bird rendering when sprite is not available
  */
 function renderFallbackBird(ctx, bird) {
-  ctx.fillStyle = bird.color === 'yellow' ? '#ffeb3b' : 
-                 bird.color === 'red' ? '#f44336' : 
-                 bird.color === 'blue' ? '#2196f3' : '#4caf50';
-                 
-  // Bird body
+  // Draw wedding ring instead of bird (logic copied from GameCanvas.js)
+  const playerWidth = bird.width; // Use bird dimensions
+  const playerHeight = bird.height;
+
+  // Main ring band (gold)
+  ctx.fillStyle = '#FFFF00'; // Bright gold/yellow color
   ctx.beginPath();
-  ctx.arc(0, 0, bird.radius, 0, Math.PI * 2);
+  // Adjust radii based on bird dimensions
+  ctx.arc(0, 0, playerWidth/2 - 4, 0, Math.PI * 2);
+  ctx.arc(0, 0, playerWidth/2 - 12, 0, Math.PI * 2, true);
   ctx.fill();
   
-  // Beak
-  ctx.fillStyle = '#ff9800';
+  // Ring outline
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(bird.radius, 0);
-  ctx.lineTo(bird.radius + 8, -4);
-  ctx.lineTo(bird.radius + 8, 4);
-  ctx.fill();
+  ctx.arc(0, 0, playerWidth/2 - 4, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(0, 0, playerWidth/2 - 12, 0, Math.PI * 2);
+  ctx.stroke();
   
-  // Eye
-  ctx.fillStyle = 'white';
-  ctx.beginPath();
-  ctx.arc(bird.radius/2, -bird.radius/2, bird.radius/3, 0, Math.PI * 2);
-  ctx.fill();
+  // Draw 8-bit style diamond
+  const diamondSize = Math.min(24, playerWidth * 0.6); // Scale diamond size relative to ring
+  const diamondX = -diamondSize/2;
+  // Position diamond above the center of the ring
+  const diamondY = -playerHeight/2 - diamondSize/2 + 5; // Adjust vertical offset if needed
   
-  ctx.fillStyle = 'black';
-  ctx.beginPath();
-  ctx.arc(bird.radius/2, -bird.radius/2, bird.radius/6, 0, Math.PI * 2);
-  ctx.fill();
+  // Draw 8-bit pixel diamond (simplified relative positioning)
+  ctx.fillStyle = '#4FC3F7'; // Light blue for diamond
+  
+  // Simplified pixel drawing (relative sizes might need fine-tuning)
+  // Center row (widest part)
+  ctx.fillRect(diamondX, diamondY + diamondSize*0.4, diamondSize, diamondSize*0.2);
+  // Rows above center
+  ctx.fillRect(diamondX + diamondSize*0.15, diamondY + diamondSize*0.2, diamondSize*0.7, diamondSize*0.2);
+  ctx.fillRect(diamondX + diamondSize*0.3, diamondY, diamondSize*0.4, diamondSize*0.2);
+  // Rows below center
+  ctx.fillRect(diamondX + diamondSize*0.15, diamondY + diamondSize*0.6, diamondSize*0.7, diamondSize*0.2);
+  ctx.fillRect(diamondX + diamondSize*0.3, diamondY + diamondSize*0.8, diamondSize*0.4, diamondSize*0.2);
+
+  // Diamond outline
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(diamondX, diamondY + diamondSize*0.4, diamondSize, diamondSize*0.2);
+  ctx.strokeRect(diamondX + diamondSize*0.15, diamondY + diamondSize*0.2, diamondSize*0.7, diamondSize*0.2);
+  ctx.strokeRect(diamondX + diamondSize*0.3, diamondY, diamondSize*0.4, diamondSize*0.2);
+  ctx.strokeRect(diamondX + diamondSize*0.15, diamondY + diamondSize*0.6, diamondSize*0.7, diamondSize*0.2);
+  ctx.strokeRect(diamondX + diamondSize*0.3, diamondY + diamondSize*0.8, diamondSize*0.4, diamondSize*0.2);
+  
+  // Highlights/Shadows (simplified)
+  ctx.fillStyle = '#81D4FA'; // Highlight
+  ctx.fillRect(diamondX + diamondSize*0.3, diamondY, diamondSize*0.4, diamondSize*0.2); // Top pixel
+  ctx.fillStyle = '#039BE5'; // Shadow
+  ctx.fillRect(diamondX + diamondSize*0.3, diamondY + diamondSize*0.8, diamondSize*0.4, diamondSize*0.2); // Bottom pixel
 }
 
 /**
@@ -202,29 +222,80 @@ export function renderPipes(ctx, pipes, pipeImages) {
  * Fallback top pipe rendering when image is not available
  */
 function renderFallbackTopPipe(ctx, pipe) {
-  ctx.fillStyle = '#74c842';
-  ctx.fillRect(pipe.x, 0, pipe.width, pipe.gapY);
-  
-  // Pipe cap
-  ctx.fillStyle = '#2e9c0f';
-  ctx.fillRect(pipe.x - 2, pipe.gapY - 20, pipe.width + 4, 20);
+  // Draw top bench (using colors from GameCanvas)
+  const width = pipe.width;
+  const height = pipe.gapY;
+  const x = pipe.x;
+  const y = 0;
+  const capHeight = 20; // Keep cap height
+
+  // Main bench body
+  ctx.fillStyle = '#DEB887'; // Light wood
+  ctx.fillRect(x, y, width, height);
+
+  // Add black outline
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, width, height);
+
+  // Bench cap (bottom edge for top pipe)
+  const capWidth = width + 8;
+  const capX = x - 4;
+  const capY = y + height - capHeight;
+  ctx.fillStyle = '#A0522D'; // Medium brown shadow color used as cap base
+  ctx.fillRect(capX, capY, capWidth, capHeight);
+  ctx.strokeRect(capX, capY, capWidth, capHeight);
+
+  // Highlights / Shadows (simplified version)
+  // Highlight (left side)
+  ctx.fillStyle = '#F5F5DC'; // Beige highlight
+  ctx.fillRect(x + 4, y, 4, height - capHeight);
+  ctx.fillRect(capX + 4, capY, 4, capHeight);
+
+  // Shadow (right side) - Use main cap color (#A0522D) for simplicity or a darker one
+  // ctx.fillStyle = '#A0522D'; // Medium brown shadow
+  // ctx.fillRect(x + width - 8, y, 4, height - capHeight);
+  // ctx.fillRect(capX + capWidth - 8, capY, 4, capHeight);
 }
 
 /**
  * Fallback bottom pipe rendering when image is not available
  */
 function renderFallbackBottomPipe(ctx, pipe) {
-  ctx.fillStyle = '#74c842';
-  ctx.fillRect(
-    pipe.x, 
-    pipe.gapY + pipe.gapHeight, 
-    pipe.width, 
-    GAME_SETTINGS.CANVAS_HEIGHT - (pipe.gapY + pipe.gapHeight)
-  );
-  
-  // Pipe cap
-  ctx.fillStyle = '#2e9c0f';
-  ctx.fillRect(pipe.x - 2, pipe.gapY + pipe.gapHeight, pipe.width + 4, 20);
+  // Draw bottom bench (using colors from GameCanvas)
+  const width = pipe.width;
+  const height = GAME_SETTINGS.CANVAS_HEIGHT - (pipe.gapY + pipe.gapHeight);
+  const x = pipe.x;
+  const y = pipe.gapY + pipe.gapHeight;
+  const capHeight = 20; // Keep cap height
+
+  // Main bench body
+  ctx.fillStyle = '#DEB887'; // Light wood
+  ctx.fillRect(x, y, width, height);
+
+  // Add black outline
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, width, height);
+
+  // Bench cap (top edge for bottom pipe)
+  const capWidth = width + 8;
+  const capX = x - 4;
+  const capY = y; // Cap is at the top of the bottom pipe
+  ctx.fillStyle = '#A0522D'; // Medium brown shadow color used as cap base
+  ctx.fillRect(capX, capY, capWidth, capHeight);
+  ctx.strokeRect(capX, capY, capWidth, capHeight);
+
+  // Highlights / Shadows (simplified version)
+  // Highlight (left side)
+  ctx.fillStyle = '#F5F5DC'; // Beige highlight
+  ctx.fillRect(x + 4, y + capHeight, 4, height - capHeight);
+  ctx.fillRect(capX + 4, capY, 4, capHeight);
+
+  // Shadow (right side) - Use main cap color (#A0522D) for simplicity or a darker one
+  // ctx.fillStyle = '#A0522D'; // Medium brown shadow
+  // ctx.fillRect(x + width - 8, y + capHeight, 4, height - capHeight);
+  // ctx.fillRect(capX + capWidth - 8, capY, 4, capHeight);
 }
 
 /**
@@ -745,8 +816,9 @@ export function preloadAssets() {
     const assets = {};
     let loadedCount = 0;
     let errorCount = 0;
-    const totalAssets = 10; // Update this number based on total assets
-    
+    // Correctly define the total number of assets we expect to load
+    const totalAssets = 7; // title(1) + getReady(1) + gameOver(1) + medals(4) = 7
+
     // Create a load tracker that handles both success and error cases
     const createLoadTracker = (image, name, assetKey, subKey = null, index = null) => {
       image.onload = () => {
@@ -783,76 +855,72 @@ export function preloadAssets() {
     
     // Check if all assets have been processed (either loaded or failed)
     const checkAllLoaded = () => {
+      // Use the correct totalAssets count
       if (loadedCount + errorCount >= totalAssets) {
         console.log(`Assets loaded: ${loadedCount}/${totalAssets} (${errorCount} errors)`);
         resolve(assets);
       }
     };
-    
-    // Load ground
-    assets.ground = new Image();
-    createLoadTracker(assets.ground, 'ground', 'ground');
-    assets.ground.src = '/images/ground.png';
-    
-    // Load bird sprites
-    assets.birdSprites = {
-      yellow: [],
-      red: [],
-      blue: []
-    };
-    
-    // Load bird sprites (yellow)
-    for (let i = 0; i < 3; i++) {
-      const img = new Image();
-      assets.birdSprites.yellow[i] = img; 
-      createLoadTracker(img, `bird-yellow-${i}`, 'birdSprites', 'yellow', i);
-      img.src = `/images/bird-yellow-${i}.png`;
-    }
-    
-    // Load pipe images
+
+    // Load ground - COMMENTED OUT
+    // assets.ground = new Image();
+    // createLoadTracker(assets.ground, 'ground', 'ground');
+    // assets.ground.src = '/images/ground.png';
+    assets.ground = null; // Explicitly set to null
+    // No need to decrement totalAssets
+
+    // Load bird sprites - COMMENTED OUT
+    assets.birdSprites = { yellow: [], red: [], blue: [] };
+    // for (let i = 0; i < 3; i++) { ... }
+    assets.birdSprites.yellow = [null, null, null]; // Explicitly set to null array
+    // No need to decrement totalAssets
+
+    // Load pipe images - COMMENTED OUT
     assets.pipes = {};
-    assets.pipes.top = new Image();
-    assets.pipes.bottom = new Image();
-    createLoadTracker(assets.pipes.top, 'pipe-top', 'pipes', 'top');
-    createLoadTracker(assets.pipes.bottom, 'pipe-bottom', 'pipes', 'bottom');
-    assets.pipes.top.src = '/images/pipe-top.png';
-    assets.pipes.bottom.src = '/images/pipe-bottom.png';
+    // assets.pipes.top = new Image();
+    // assets.pipes.bottom = new Image();
+    // createLoadTracker(assets.pipes.top, 'pipe-top', 'pipes', 'top');
+    // createLoadTracker(assets.pipes.bottom, 'pipe-bottom', 'pipes', 'bottom');
+    // assets.pipes.top.src = '/images/pipe-top.png';
+    // assets.pipes.bottom.src = '/images/pipe-bottom.png';
+    assets.pipes.top = null;
+    assets.pipes.bottom = null;
+    // No need to decrement totalAssets
     
-    // Load UI elements
+    // Load UI elements (Keep these - total 7)
     assets.title = new Image();
     createLoadTracker(assets.title, 'title', 'title');
-    assets.title.src = '/images/title.png';
-    
+    assets.title.src = '/images/title.png'; // 1
+
     assets.getReady = new Image();
     createLoadTracker(assets.getReady, 'get-ready', 'getReady');
-    assets.getReady.src = '/images/get-ready.png';
-    
+    assets.getReady.src = '/images/get-ready.png'; // 2
+
     assets.gameOver = new Image();
     createLoadTracker(assets.gameOver, 'game-over', 'gameOver');
-    assets.gameOver.src = '/images/game-over.png';
-    
+    assets.gameOver.src = '/images/game-over.png'; // 3
+
+    // Load medals (Keep these)
     assets.medals = {};
     assets.medals.bronze = new Image();
     assets.medals.silver = new Image();
     assets.medals.gold = new Image();
     assets.medals.platinum = new Image();
-    
-    // Load medals
-    createLoadTracker(assets.medals.bronze, 'medal-bronze', 'medals', 'bronze');
-    createLoadTracker(assets.medals.silver, 'medal-silver', 'medals', 'silver');
-    createLoadTracker(assets.medals.gold, 'medal-gold', 'medals', 'gold');
-    createLoadTracker(assets.medals.platinum, 'medal-platinum', 'medals', 'platinum');
-    
+    createLoadTracker(assets.medals.bronze, 'medal-bronze', 'medals', 'bronze'); // 4
+    createLoadTracker(assets.medals.silver, 'medal-silver', 'medals', 'silver'); // 5
+    createLoadTracker(assets.medals.gold, 'medal-gold', 'medals', 'gold'); // 6
+    createLoadTracker(assets.medals.platinum, 'medal-platinum', 'medals', 'platinum'); // 7
     assets.medals.bronze.src = '/images/medal-bronze.png';
     assets.medals.silver.src = '/images/medal-silver.png';
     assets.medals.gold.src = '/images/medal-gold.png';
     assets.medals.platinum.src = '/images/medal-platinum.png';
-    
+
     // Set a timeout in case some assets are taking too long
     setTimeout(() => {
+      // Use the final calculated totalAssets for the check
       if (loadedCount + errorCount < totalAssets) {
-        console.warn(`Timeout: Only ${loadedCount}/${totalAssets} assets loaded after 5 seconds`);
-        resolve(assets);
+        console.warn(`Timeout: Only ${loadedCount}/${totalAssets} required assets loaded after 5 seconds`);
+        resolve(assets); // Resolve anyway, the fallbacks should handle missing UI assets too
       }
     }, 5000);
   });
