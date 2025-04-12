@@ -4,7 +4,10 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 const GameHUD = ({ score, highScore, gameStarted, gameOver, onRestart, onShowLeaderboard }) => {
-  const [showInstructions, setShowInstructions] = useState(true);
+  // Add logging for debugging
+  console.log("GameHUD rendering with state:", { score, highScore, gameStarted, gameOver });
+  
+  const [showInstructions, setShowInstructions] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   
   // Detect mobile devices for UI adjustments
@@ -30,6 +33,13 @@ const GameHUD = ({ score, highScore, gameStarted, gameOver, onRestart, onShowLea
   const textWithOutline = {
     ...pixelFontStyle,
     textShadow: '2px 2px 0 #000, -2px 2px 0 #000, 2px -2px 0 #000, -2px -2px 0 #000'
+  };
+  
+  // Add this near the beginning of the component
+  const buttonStyle = {
+    ...pixelFontStyle,
+    pointerEvents: 'auto', // Ensure buttons are clickable
+    cursor: 'pointer'
   };
   
   // Handle space bar press for instructions screen
@@ -59,7 +69,7 @@ const GameHUD = ({ score, highScore, gameStarted, gameOver, onRestart, onShowLea
       
       {/* Instructions overlay */}
       {showInstructions && !gameStarted && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 pointer-events-auto z-30">
           <div className="mb-4 sm:mb-12 w-full max-w-xs mx-auto text-center bg-[#DEA430] border-4 border-black rounded-xl p-4 sm:p-6 shadow-lg">
             <h2 className="text-3xl sm:text-4xl text-white mb-3 sm:mb-4" style={textWithOutline}>
               RING BEARER MINIGAME
@@ -72,8 +82,8 @@ const GameHUD = ({ score, highScore, gameStarted, gameOver, onRestart, onShowLea
             </p>
             <button
               onClick={() => setShowInstructions(false)}
-              className="bg-yellow-400 text-black font-bold px-4 sm:px-6 py-2 sm:py-3 rounded-md border-b-4 border-yellow-600 hover:bg-yellow-500 transition pointer-events-auto"
-              style={pixelFontStyle}
+              className="bg-yellow-400 text-black font-bold px-4 sm:px-6 py-2 sm:py-3 rounded-md border-b-4 border-yellow-600 hover:bg-yellow-500 transition pointer-events-auto z-50"
+              style={buttonStyle}
               aria-label="Start game"
             >
               GOT IT!
@@ -84,7 +94,8 @@ const GameHUD = ({ score, highScore, gameStarted, gameOver, onRestart, onShowLea
       
       {/* Game over overlay */}
       {gameOver && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 pointer-events-auto z-30">
+          {console.log("GameHUD rendering game over UI")}
           <div className="bg-[#DEA430] border-4 border-black rounded-xl p-4 sm:p-6 w-[90vw] sm:w-auto max-w-md mx-auto text-center shadow-xl overflow-y-auto max-h-[90vh]">
             <h2 className="text-xl sm:text-3xl font-bold text-black mb-2 sm:mb-4" style={pixelFontStyle}>GAME OVER</h2>
             
@@ -118,11 +129,13 @@ const GameHUD = ({ score, highScore, gameStarted, gameOver, onRestart, onShowLea
                   
                   <div className="border-t-2 border-black my-2"></div>
                   
-                  <h3 className="text-base font-bold text-black mb-1" style={pixelFontStyle}>Save the date!</h3>
-                  <p className="text-lg font-bold text-black mb-1" style={pixelFontStyle}>May 16, 2026</p>
-                  <p className="text-xs text-black mb-2" style={pixelFontStyle}>
-                    We can't wait to see you there!
-                  </p>
+                  <div className="bg-white p-3 rounded-lg border-2 border-black">
+                    <h3 className="text-base font-bold text-black mb-1" style={pixelFontStyle}>Save the date for our wedding!</h3>
+                    <p className="text-lg font-bold text-black mb-1" style={pixelFontStyle}>May 16, 2026</p>
+                    <p className="text-xs text-black mb-1" style={pixelFontStyle}>
+                      We can't wait to see you there!
+                    </p>
+                  </div>
                 </>
               ) : (
                 <>
@@ -135,14 +148,16 @@ const GameHUD = ({ score, highScore, gameStarted, gameOver, onRestart, onShowLea
                   
                   <div className="border-t-2 border-black my-2 sm:my-3"></div>
                   
-                  <h3 className="text-base sm:text-lg font-bold text-black mb-1 sm:mb-2" style={pixelFontStyle}>Save the date!</h3>
-                  <p className="text-lg sm:text-xl font-bold text-black mb-1 sm:mb-2" style={pixelFontStyle}>May 16, 2026</p>
-                  <p className="text-xs text-black mb-1" style={pixelFontStyle}>
-                    Mark your calendar — we can't wait
-                  </p>
-                  <p className="text-xs text-black mb-2 sm:mb-3" style={pixelFontStyle}>
-                    to gather again with you.
-                  </p>
+                  <div className="bg-white p-3 sm:p-4 rounded-lg border-2 border-black">
+                    <h3 className="text-base sm:text-lg font-bold text-black mb-1 sm:mb-2" style={pixelFontStyle}>Save the date for our wedding!</h3>
+                    <p className="text-lg sm:text-xl font-bold text-black mb-1 sm:mb-2" style={pixelFontStyle}>May 16, 2026</p>
+                    <p className="text-xs text-black mb-0" style={pixelFontStyle}>
+                      Mark your calendar — we can't wait
+                    </p>
+                    <p className="text-xs text-black" style={pixelFontStyle}>
+                      to gather again with you.
+                    </p>
+                  </div>
                   
                   <div className="border-t-2 border-black my-2 sm:my-3"></div>
                   
@@ -154,30 +169,22 @@ const GameHUD = ({ score, highScore, gameStarted, gameOver, onRestart, onShowLea
               )}
             </div>
             
-            <div className="flex gap-2 sm:gap-4 justify-center">
+            <div className="flex gap-2 sm:gap-4 justify-center z-50">
               <button
                 onClick={onRestart}
-                className="pointer-events-auto bg-green-500 text-white px-3 sm:px-4 py-2 rounded-lg border-b-4 border-green-700 hover:bg-green-600 transition"
-                style={{ ...pixelFontStyle, fontSize: '13px' }}
+                className="pointer-events-auto z-50 bg-green-500 text-white px-3 sm:px-4 py-2 rounded-lg border-b-4 border-green-700 hover:bg-green-600 transition"
+                style={{ ...buttonStyle, fontSize: '13px' }}
               >
                 PLAY AGAIN
               </button>
               
               <button 
                 onClick={onShowLeaderboard}
-                className="pointer-events-auto bg-yellow-500 text-white px-3 sm:px-4 py-2 rounded-lg border-b-4 border-yellow-700 hover:bg-yellow-600 transition"
-                style={{ ...pixelFontStyle, fontSize: '13px' }}
+                className="pointer-events-auto z-50 bg-yellow-500 text-white px-3 sm:px-4 py-2 rounded-lg border-b-4 border-yellow-700 hover:bg-yellow-600 transition"
+                style={{ ...buttonStyle, fontSize: '13px' }}
               >
                 VIEW SCORES
               </button>
-              
-              <Link 
-                href="/" 
-                className="pointer-events-auto bg-blue-500 text-white px-3 sm:px-4 py-2 rounded-lg border-b-4 border-blue-700 hover:bg-blue-600 transition text-center"
-                style={{ ...pixelFontStyle, fontSize: '13px' }}
-              >
-                BACK TO RSVP
-              </Link>
             </div>
           </div>
           

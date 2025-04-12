@@ -7,7 +7,7 @@ import Image from 'next/image';
 const storyMoments = [
   {
     icon: "📚",
-    title: "The Friend Zone",
+    title: "Ohio State: The Friend Zone",
     content: "Same floor, same major, same hustle.\nDorm hangs, club meetings, building Pass Go.\n\nThey did everything together—classes, career fairs, late-night talks.\nElena called Anthony her intellectual soulmate.\n\nSweet.\nAlso: firmly friend-zoned.\n\nThey were inseparable.\nJust not a couple.\n\nYet."
   },
   {
@@ -17,18 +17,18 @@ const storyMoments = [
   },
   {
     icon: "✈️",
-    title: "Donuts & Distance",
-    content: "Graduation hit.\nShe moved East. He stayed Midwest.\n\nThere were calls from the Singapore Zoo.\nTrain rides to Philly.\nLate-night talks and mozzarella stick memories.\n\nThe spark dimmed.\nBut it never went out.\n\nEven when the story hit pause—\nIt was still playing."
+    title: "Doughnuts & Distance",
+    content: "Graduation hit.\nShe moved East. He stayed Midwest.\n\nThere were calls from the Singapore Zoo.\nTrain rides to Philly.\nLong-distance Doordash orders from Buckeye Donuts.\n\nThe spark dimmed.\nBut it never went out.\n\nEven when the story hit pause—\nIt was still playing."
   },
   {
     icon: "🥂",
-    title: "The First Celebration",
+    title: "New Traditions",
     content: "The night before Stanford decisions were announced (the first time),\nAnthony took Elena to dinner.\n\nNot to toast the outcome—\nBut the effort.\n\nThat night, two traditions were born:\nCelebrate early.\nCelebrate often."
   },
   {
     icon: "🎓",
     title: "Back to School",
-    content: "Took their talents to California. This time, as a couple.\n\nThey built community.\nDinner parties with way too many people crammed around a table.\nWalks through eucalyptus-lined paths.\nTwo-person traditions in a brand-new place.\n\nTheir love aged there.\nReal. Earned. Rooted."
+    content: "They move cross-country to California. Not the first time they've been students together - but this time, as a couple.\n\nThey built community.\nDinner parties with way too many people crammed around a table.\nWalks through eucalyptus-lined paths.\nTwo-person traditions in a brand-new place.\n\nTheir love aged there.\nReal. Earned. Rooted."
   },
   {
     icon: "💍",
@@ -38,7 +38,7 @@ const storyMoments = [
   {
     icon: "🎉",
     title: "The Celebration Begins",
-    content: "Join us for a night to remember.\nThis isn't just a party.\nIt's every chapter, all in one room."
+    content: "Join us for a night to remember.\nIt's every chapter, all in one room."
   }
 ];
 
@@ -68,7 +68,7 @@ function StoryModal({ story, onClose }) {
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         </button>
-        <h2 className="text-lg sm:text-xl md:text-2xl font-[fonts.heading] font-bold text-[#4A5D4F] mb-2 sm:mb-3 md:mb-4">{story.title}</h2>
+        <h2 className="text-lg sm:text-xl md:text-2xl font-serif font-bold text-[#4A5D4F] mb-2 sm:mb-3 md:mb-4">{story.title}</h2>
         <p className="text-sm sm:text-base md:text-lg text-[#4A5D4F]/80 mb-4 sm:mb-5 md:mb-6 whitespace-pre-line leading-relaxed">{story.content}</p>
         <button 
           onClick={onClose} 
@@ -115,7 +115,7 @@ export default function Page() {
   };
 
   return (
-    <main className="bg-white text-[colors.text.primary] font-serif scroll-smooth">
+    <main className="bg-white text-[#2e2c2f] font-serif scroll-smooth">
       <header className="absolute top-4 sm:top-6 left-0 w-full flex justify-between items-center z-50 px-4 sm:px-8">
         <div className="flex-1">
           {/* Empty div for centering */}
@@ -136,7 +136,7 @@ export default function Page() {
             priority
             quality={85}
             placeholder="blur"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRseHh4eHh4eHh4eHh4eHh4eHh4eHh7/2wBDAR4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRseHh4eHh4eHh4eHh4eHh4eHh7/2wBDAR4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 80vw"
             className="blur-[4px] object-cover object-center"
             loading="eager"
@@ -144,7 +144,7 @@ export default function Page() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-black/40"></div>
         </div>
         <div className="relative z-10 bg-black/20 backdrop-blur-md p-6 sm:p-8 rounded-xl shadow-lg max-w-3xl mx-4 mt-16 sm:mt-0">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-[fonts.heading] text-white font-bold leading-tight mb-8 sm:mb-10">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-white font-bold leading-tight mb-8 sm:mb-10">
             Join Elena & Anthony to celebrate their engagement!
           </h1>
           <div className="text-base sm:text-lg text-white/90 space-y-4">
@@ -195,7 +195,7 @@ export default function Page() {
         </div>
       </section>
       <section id="our-story" className="relative min-h-screen px-4 sm:px-6 py-24 sm:py-32 bg-gradient-to-b from-[#F3EFE9] to-white overflow-hidden">
-        <h2 className="text-center text-3xl sm:text-4xl md:text-5xl font-[fonts.heading] font-bold text-[#4A5D4F] mb-3 sm:mb-4 tracking-tight">
+        <h2 className="text-center text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-[#4A5D4F] mb-3 sm:mb-4 tracking-tight">
           Discover Our Story
         </h2>
         <p className="text-center text-base sm:text-lg text-[#4A5D4F]/80 mb-12 sm:mb-16 max-w-2xl mx-auto px-2 sm:px-4">
@@ -237,7 +237,7 @@ export default function Page() {
                   )}
                 </div>
                 <div>
-                  <h3 className={`text-lg sm:text-xl font-[fonts.heading] font-bold ${visited.has(story.title) ? 'text-[#729b79]' : 'text-[#4A5D4F]'} mb-1 sm:mb-0`}>
+                  <h3 className={`text-lg sm:text-xl font-serif font-bold ${visited.has(story.title) ? 'text-[#729b79]' : 'text-[#4A5D4F]'} mb-1 sm:mb-0`}>
                     {story.title}
                   </h3>
                   <p className="text-sm sm:text-base text-[#4A5D4F]/80">{story.content.slice(0, 100)}...</p>
@@ -295,7 +295,7 @@ export default function Page() {
       </section>
 
       <section id="rsvp" className="py-16 sm:py-20 px-4 sm:px-6 bg-[#F3EFE9] text-center">
-        <h2 className="text-3xl sm:text-4xl font-[fonts.heading] font-bold mb-4 sm:mb-6 text-[#4A5D4F]">Count Me In</h2>
+        <h2 className="text-3xl sm:text-4xl font-serif font-bold mb-4 sm:mb-6 text-[#4A5D4F]">Count Me In</h2>
         <p className="mb-6 sm:mb-8 text-base sm:text-lg text-[#4A5D4F]/80 max-w-xl mx-auto">
           Leave us a note, a memory, or a wish—your words will help shape this gathering.
         </p>
@@ -329,7 +329,7 @@ export default function Page() {
           <div className="w-24 h-px bg-[#4A5D4F]/20"></div>
         </div>
         <div className="mt-10" id="registry">
-          <h2 className="text-3xl sm:text-4xl font-[fonts.heading] font-bold mb-4 sm:mb-6 text-[#4A5D4F]">Our Registry</h2>
+          <h2 className="text-3xl sm:text-4xl font-serif font-bold mb-4 sm:mb-6 text-[#4A5D4F]">Our Registry</h2>
           <p className="text-base sm:text-lg text-[#4A5D4F]/80 mb-2">
             Your presence at this gathering is the greatest gift we could ask for. But if you're still looking for something, you'll find our registry below.
           </p>
@@ -345,18 +345,25 @@ export default function Page() {
       </section>
 
       <section className="py-16 sm:py-20 px-4 sm:px-6 bg-white text-center">
-        <h2 className="text-3xl sm:text-4xl font-[fonts.heading] font-bold mb-4 sm:mb-6 text-[#4A5D4F]">For the Gentleman</h2>
-        <p className="mb-6 sm:mb-8 text-base sm:text-lg text-[#4A5D4F]/80 max-w-xl mx-auto">
+        <div className="my-4 flex items-center justify-center">
+          <div className="w-24 h-px bg-[#4A5D4F]/20"></div>
+          <div className="mx-4 text-[#4A5D4F]/40">❦</div>
+          <div className="w-24 h-px bg-[#4A5D4F]/20"></div>
+        </div>
+        <h2 className="text-3xl sm:text-4xl font-serif font-bold mb-4 sm:mb-6 text-[#4A5D4F]">For the Gentlemen</h2>
+        <p className="text-base sm:text-lg text-[#4A5D4F]/80 mb-6 max-w-xl mx-auto">
           Click here for a guide on attire to ensure you're dressed for success at this celebration.
         </p>
-        <a
-          href="https://r.mtdv.me/articles/mens-style-guide-elevated-backyard-soiree"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block bg-[#729b79] hover:bg-[#5c7f66] text-white font-semibold px-8 py-4 rounded-lg transition text-lg"
-        >
-          Style Guide
-        </a>
+        <div className="w-full max-w-xl mx-auto">
+          <a
+            href="https://r.mtdv.me/articles/mens-style-guide-elevated-backyard-soiree"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-[#729b79] hover:bg-[#5c7f66] text-white font-semibold px-8 py-4 rounded-lg transition text-lg"
+          >
+            Style Guide
+          </a>
+        </div>
       </section>
 
       <footer className="bg-white py-8 sm:py-10 text-center text-sm sm:text-base text-[#4A5D4F]/70 px-4">
