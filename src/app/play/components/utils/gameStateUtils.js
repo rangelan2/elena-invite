@@ -73,6 +73,24 @@ export function createInitialGameState() {
 }
 
 /**
+ * Finds the next pipe the bird needs to pass.
+ */
+function findUpcomingPipe(pipes, birdX) {
+  let upcomingPipe = null;
+  let minPipeX = Infinity; // Find the pipe with the minimum x greater than birdX
+
+  for (const pipe of pipes) {
+    // Consider pipes that are ahead of the bird's front edge
+    if (pipe.x + pipe.width / 2 > birdX && pipe.x < minPipeX) {
+      minPipeX = pipe.x;
+      upcomingPipe = pipe;
+    }
+  }
+  // console.log("Upcoming pipe:", upcomingPipe ? `x=${upcomingPipe.x.toFixed(0)} gap=${upcomingPipe.gapHeight}` : "None");
+  return upcomingPipe;
+}
+
+/**
  * Updates the bird position and animation
  */
 export function updateBird(bird, deltaTime, gravity, gameState) {
@@ -350,12 +368,14 @@ export function handleGameInput(gameState, canvasWidth, canvasHeight) {
         y: canvasHeight / 2,  // Place bird vertically centered
         velocity: -7 // Initial jump
       };
+      // Apply the initial jump using the new logic as well
+      newState.bird = birdJump(newState.bird, calculateDynamicJumpForce(newState));
       break;
       
     case GAME_STATES.PLAYING:
-      // Bird jump
+      // Bird jump with dynamic force
       console.log("Bird jump in PLAYING state");
-      newState.bird = birdJump(newState.bird, 7);
+      newState.bird = birdJump(newState.bird, calculateDynamicJumpForce(newState));
       break;
       
     case GAME_STATES.GAME_OVER:
@@ -369,6 +389,35 @@ export function handleGameInput(gameState, canvasWidth, canvasHeight) {
   }
   
   return newState;
+}
+
+/**
+ * Calculates the jump force based on the upcoming pipe's gap size.
+ */
+function calculateDynamicJumpForce(gameState) {
+  const BASE_JUMP_FORCE = 7.0;
+  const STANDARD_GAP_HEIGHT = GAME_SETTINGS.PIPE_GAP_HEIGHT;
+  let jumpForce = BASE_JUMP_FORCE; // Default jump force
+
+  // Find the next pipe the bird needs to pass
+  const upcomingPipe = findUpcomingPipe(gameState.pipes, gameState.bird.x);
+
+  if (upcomingPipe) {
+    const gapRatio = upcomingPipe.gapHeight / STANDARD_GAP_HEIGHT;
+    
+    // Adjust base jump force based on gap size.
+    // Factor 0.5 scales the effect: e.g., 1.5 ratio -> 1 + (0.5 * 0.5) = 1.25 multiplier
+    let dynamicJumpForce = BASE_JUMP_FORCE * (1 + (gapRatio - 1) * 0.5);
+    
+    // Clamp the jump force to prevent extreme values (e.g., 1.0 to 9.0)
+    jumpForce = Math.max(1.0, Math.min(9.0, dynamicJumpForce));
+    
+    console.log(`Upcoming pipe gap: ${upcomingPipe.gapHeight}, Ratio: ${gapRatio.toFixed(2)}, Calculated Jump Force: ${jumpForce.toFixed(2)}`);
+  } else {
+    console.log("No upcoming pipe found, using default jump force.");
+  }
+  
+  return jumpForce;
 }
 
 /**
