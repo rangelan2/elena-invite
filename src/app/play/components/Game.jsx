@@ -11,7 +11,7 @@ import {
   resetGame
 } from './utils/gameStateUtils';
 import { renderGame, preloadAssets } from './utils/renderUtils';
-import { useResizeObserver } from './hooks/useResizeObserver.js';
+import { useResizeObserver } from './hooks/useResizeObserver';
 
 /**
  * Main Game component that handles the game canvas and game loop
@@ -128,6 +128,11 @@ export default function Game({
 
   // Update the handleTap function to set the game state to PLAYING if it's in MENU or READY state
   const handleTap = useCallback((e) => {
+    // Always prevent default behavior for touchstart to avoid double taps (touchstart + click)
+    if (e.type === 'touchstart') {
+      e.preventDefault(); 
+    }
+
     // If on game over screen, check if buttons were clicked
     if (gameStateRef.current.gameState === GAME_STATES.GAME_OVER) {
       
@@ -143,7 +148,7 @@ export default function Game({
       
       // Handle both mouse click and touch events
       if (e.type === 'touchstart') {
-        e.preventDefault(); 
+        // preventDefault() already called above
         x = (e.touches[0].clientX - rect.left) * scaleX;
         y = (e.touches[0].clientY - rect.top) * scaleY;
       } else if (e.type === 'click') {
