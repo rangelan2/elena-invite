@@ -59,7 +59,8 @@ const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm
       if (gameStateRef.current) {
         gameStateRef.current.useLowGraphics = mobile;
         // Adjust jump strength for mobile
-        gameStateRef.current.player.jump = mobile ? -6.5 : -8; 
+        gameStateRef.current.player.jump = mobile ? -6 : -8.5; 
+        gameStateRef.current.player.gravity = mobile ? 0.45 : 0.5;
       }
     };
     
@@ -281,7 +282,7 @@ const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm
     
     // Scale obstacle gap based on screen height for better playability
     const minGap = 120; // Minimum gap size in pixels
-    const idealGap = containerHeight * 0.32; // 32% of screen height
+    const idealGap = containerHeight * (isMobile ? 0.35 : 0.32); // Adjusted mobile gap percentage
     gameState.obstacleGap = Math.max(minGap, idealGap);
     
     // Adjust pipe width based on screen width
@@ -290,8 +291,8 @@ const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm
     gameState.obstacleWidth = Math.max(minWidth, Math.min(60, idealWidth));
     
     // Adjust player physics based on screen size
-    gameState.player.gravity = isMobile ? 0.4 : 0.5;
-    gameState.player.jump = isMobile ? -7 : -8.5;
+    gameState.player.gravity = isMobile ? 0.45 : 0.5;
+    gameState.player.jump = isMobile ? -6 : -8.5;
   }, [isMobile]);
   
   // Draw the initial waiting screen
@@ -677,9 +678,13 @@ const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm
           const maxTopHeight = canvas.height - gameState.ground.height - gameState.obstacleGap - minObstacleHeight - groundSafetyMargin;
           obstacleTopHeight = Math.min(obstacleTopHeight, maxTopHeight);
           
+          // Calculate bottom pipe Y position based on top pipe height and gap
+          const bottomPipeY = obstacleTopHeight + gameState.obstacleGap;
+          
           gameState.obstacles.push({
             x: canvas.width,
             topHeight: obstacleTopHeight,
+            bottomY: bottomPipeY, // Store bottom Y position
             scored: false
           });
         } else {
@@ -687,8 +692,12 @@ const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm
            // Optionally handle this case, e.g., spawn a simpler obstacle or skip spawning
         }
         
-        // Adjust spawn rate slightly for variety
-        gameState.obstacleSpawnRate = 1400 + Math.random() * 200; // e.g., between 1.4s and 1.6s
+        // Adjust spawn rate using mobile-specific ranges
+        if (isMobile) {
+          gameState.obstacleSpawnRate = 2000 + Math.random() * 400; // e.g., 2.0s - 2.4s for mobile
+        } else {
+          gameState.obstacleSpawnRate = 1400 + Math.random() * 200; // e.g., 1.4s - 1.6s for desktop
+        }
       }
       
       // Draw and update all obstacles
