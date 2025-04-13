@@ -98,7 +98,7 @@ const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm
     },
     obstacles: [],
     obstacleWidth: 52,
-    obstacleGap: 140,
+    obstacleGap: 180,
     obstacleSpeed: 2,
     obstacleSpawnRate: 1500,
     lastObstacleSpawn: 0,
@@ -677,21 +677,22 @@ const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm
         // Store exact timestamp for consistent timing between spawns
         gameState.lastObstacleSpawn = timestamp;
         
-        // Increase difficulty as score increases, but more gradually
-        if (score > 10) {
+        // Increase difficulty as score increases, starting earlier and more noticeably
+        if (score > 5) { // Start difficulty increase earlier (was score > 10)
           // Cap the minimum spawn rate to prevent impossible gameplay
-          const minSpawnRate = isMobile ? 1800 : 1300;
-          const reductionAmount = 20; // ms reduction per difficulty increase
-          
+          const minSpawnRate = isMobile ? 1700 : 1200; // Slightly lower minimums
+          const reductionAmount = 30; // Reduce spawn rate faster (was 20)
+
           // Gradually reduce spawn rate as score increases (makes pipes closer together)
-          gameState.obstacleSpawnRate = Math.max(minSpawnRate, 
-            gameState.obstacleSpawnRate - (reductionAmount * (score > 20 ? 0.5 : 1))
+          gameState.obstacleSpawnRate = Math.max(minSpawnRate,
+            gameState.obstacleSpawnRate - (reductionAmount * (score > 15 ? 0.6 : 1)) // Adjust multiplier threshold/value
           );
-          
-          // Also limit pipe speed increases to prevent impossibility
-          if (score >= 25) {
-            const maxSpeed = isMobile ? 3 : 4;
-            gameState.obstacleSpeed = Math.min(maxSpeed, gameState.obstacleSpeed * 1.001);
+
+          // Also limit pipe speed increases, starting earlier and increasing faster
+          if (score >= 15) { // Start speed increase earlier (was score >= 25)
+            const maxSpeed = isMobile ? 3.5 : 4.5; // Slightly higher max speeds
+            // Increase speed a bit faster (was 1.001)
+            gameState.obstacleSpeed = Math.min(maxSpeed, gameState.obstacleSpeed * 1.003);
           }
         }
       }
