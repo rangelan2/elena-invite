@@ -118,7 +118,7 @@ export default function RootLayout({ children }) {
               Please enable JavaScript in your browser settings to continue.
             </p>
             <p style={{ color: '#4A5D4F' }}>
-              Elena and Anthony's Engagement Party - Saturday, June 14, 2025
+              Elena and Anthony&apos;s Engagement Party - Saturday, June 14, 2025
             </p>
           </div>
         </noscript>

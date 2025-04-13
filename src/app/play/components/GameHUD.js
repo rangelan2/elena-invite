@@ -133,7 +133,7 @@ const GameHUD = ({ score, highScore, gameStarted, gameOver, onRestart, onShowLea
                     <h3 className="text-base font-bold text-black mb-1" style={pixelFontStyle}>Save the date for our wedding!</h3>
                     <p className="text-lg font-bold text-black mb-1" style={pixelFontStyle}>May 16, 2026</p>
                     <p className="text-xs text-black mb-1" style={pixelFontStyle}>
-                      We can't wait to see you there!
+                      We can&apos;t wait to see you there!
                     </p>
                   </div>
                 </>
@@ -152,7 +152,7 @@ const GameHUD = ({ score, highScore, gameStarted, gameOver, onRestart, onShowLea
                     <h3 className="text-base sm:text-lg font-bold text-black mb-1 sm:mb-2" style={pixelFontStyle}>Save the date for our wedding!</h3>
                     <p className="text-lg sm:text-xl font-bold text-black mb-1 sm:mb-2" style={pixelFontStyle}>May 16, 2026</p>
                     <p className="text-xs text-black mb-0" style={pixelFontStyle}>
-                      Mark your calendar — we can't wait
+                      Mark your calendar — we can&apos;t wait
                     </p>
                     <p className="text-xs text-black" style={pixelFontStyle}>
                       to gather again with you.

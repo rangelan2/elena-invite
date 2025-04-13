@@ -133,7 +133,7 @@ export default function Page() {
           {/* Empty div for centering */}
         </div>
         <h1 className="text-lg sm:text-xl md:text-2xl font-serif text-white max-w-lg sm:max-w-xl md:max-w-2xl mx-auto text-center font-medium tracking-wide bg-black/20 backdrop-blur-sm px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-sm">
-          We're gathering our dearest friends for the first of many celebrations. And it wouldn't be the same without you.
+          We&apos;re gathering our dearest friends for the first of many celebrations. And it wouldn&apos;t be the same without you.
         </h1>
         <div className="flex-1">
           {/* Empty div for centering */}
@@ -171,7 +171,7 @@ export default function Page() {
               className="w-full sm:w-auto inline-block bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-semibold px-8 py-3 rounded-lg transition text-center"
               aria-label="View our story"
             >
-              Let's Start at the Beginning
+              Let&apos;s Start at the Beginning
             </button>
             <button
               onClick={() => scrollToSection('rsvp')}
@@ -287,9 +287,9 @@ export default function Page() {
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
               </button>
-              <h2 className="text-2xl font-bold text-[#475b63] mb-4">🎉 You've Unlocked a Secret!</h2>
+              <h2 className="text-2xl font-bold text-[#475b63] mb-4">🎉 You&apos;ve Unlocked a Secret!</h2>
               <p className="text-[#2e2c2f] mb-6">
-                By exploring every chapter of our story, you've discovered a mini-game inspired by our favorite memories.
+                By exploring every chapter of our story, you&apos;ve discovered a mini-game inspired by our favorite memories.
               </p>
               <a
                 href="/play"
@@ -302,7 +302,7 @@ export default function Page() {
         )}
         
         <p className="text-center text-base sm:text-lg text-[#4A5D4F]/80 mt-16 max-w-2xl mx-auto px-2 sm:px-4">
-          This isn't just a party—it's our way of saying thank you. You've shaped who we are and have always shown up for us. Let's raise a glass to the road behind us and the one ahead.
+          This isn&apos;t just a party—it&apos;s our way of saying thank you. You&apos;ve shaped who we are and have always shown up for us. Let&apos;s raise a glass to the road behind us and the one ahead.
         </p>
       </section>
 
@@ -343,7 +343,7 @@ export default function Page() {
         <div className="mt-10" id="registry">
           <h2 className="text-3xl sm:text-4xl font-serif font-bold mb-4 sm:mb-6 text-[#4A5D4F]">Our Registry</h2>
           <p className="text-base sm:text-lg text-[#4A5D4F]/80 mb-2">
-            Your presence at this gathering is the greatest gift we could ask for. But if you're still looking for something, you'll find our registry below.
+            Your presence at this gathering is the greatest gift we could ask for. But if you&apos;re still looking for something, you&apos;ll find our registry below.
           </p>
           <a
             href="https://registry.theknot.com/elena-arida-anthony-rangel-may-2026-ny/71770067"
@@ -358,7 +358,7 @@ export default function Page() {
 
       <footer className="bg-white py-8 sm:py-10 text-center text-sm sm:text-base text-[#4A5D4F]/70 px-4">
         <p>
-          We can't wait to share this chapter—and the next—with you. <br className="hidden sm:block" />Love, Elena & Anthony
+          We can&apos;t wait to share this chapter—and the next—with you. <br className="hidden sm:block" />Love, Elena & Anthony
         </p>
       </footer>
     </main>

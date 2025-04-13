@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useCallback, memo } from 'react';
 import useSound from 'use-sound';
 
-const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm, gameStarted, gameOver }) => {
+const GameCanvasComponent = ({ onGameOver, onScoreUpdate, onStartGame, showScoreForm, gameStarted, gameOver }) => {
   // Core refs for game rendering and animation
   const canvasRef = useRef(null);
   const gameLoopRef = useRef(null);
@@ -985,6 +985,9 @@ const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm
       />
     </div>
   );
-});
+};
+
+const GameCanvas = memo(GameCanvasComponent);
+GameCanvas.displayName = 'GameCanvas';
 
 export default GameCanvas; 
