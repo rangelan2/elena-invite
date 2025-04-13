@@ -26,7 +26,10 @@ export const metadata = {
   title: "You're invited! Elena and Anthony's engagement party 🥂",
   description: "Join us for a summertime patio celebration.",
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/images/favicon_heart.png', type: 'image/png', sizes: 'any' }
+    ],
+    apple: '/images/favicon_heart.png',
   },
   openGraph: {
     title: "You're invited! Elena and Anthony's engagement party 🥂",
