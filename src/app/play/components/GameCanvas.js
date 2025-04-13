@@ -59,8 +59,8 @@ const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm
       if (gameStateRef.current) {
         gameStateRef.current.useLowGraphics = mobile;
         // Adjust jump strength for mobile
-        gameStateRef.current.player.jump = mobile ? -6 : -8.5; 
-        gameStateRef.current.player.gravity = mobile ? 0.45 : 0.5;
+        gameStateRef.current.player.jump = mobile ? -4 : -8.5;
+        gameStateRef.current.player.gravity = mobile ? 0.4 : 0.5;
       }
     };
     
@@ -291,8 +291,8 @@ const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm
     gameState.obstacleWidth = Math.max(minWidth, Math.min(60, idealWidth));
     
     // Adjust player physics based on screen size
-    gameState.player.gravity = isMobile ? 0.45 : 0.5;
-    gameState.player.jump = isMobile ? -6 : -8.5;
+    gameState.player.gravity = isMobile ? 0.4 : 0.5;
+    gameState.player.jump = isMobile ? -4 : -8.5;
   }, [isMobile]);
   
   // Draw the initial waiting screen
