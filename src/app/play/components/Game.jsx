@@ -11,6 +11,7 @@ import {
   resetGame
 } from './utils/gameStateUtils';
 import { renderGame, preloadAssets } from './utils/renderUtils';
+import { useResizeObserver } from './hooks/useResizeObserver.js';
 
 /**
  * Main Game component that handles the game canvas and game loop
@@ -31,6 +32,31 @@ export default function Game({
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [scoreData, setScoreData] = useState({ score: 0, highScore: 0 });
+  const [canvasSize, setCanvasSize] = useState({ width: GAME_SETTINGS.CANVAS_WIDTH, height: GAME_SETTINGS.CANVAS_HEIGHT }); // Initial size
+
+  // Use ResizeObserver to track canvas container size
+  const containerRef = useRef(null); // Ref for the container div
+  const dimensions = useResizeObserver(containerRef);
+
+  // Update canvas size state when dimensions change
+  useEffect(() => {
+    if (dimensions && dimensions.width && dimensions.height) {
+      // Use integer values for canvas attributes
+      const newWidth = Math.floor(dimensions.width);
+      const newHeight = Math.floor(dimensions.height);
+
+      // Only update if size actually changed to avoid unnecessary re-renders/resets
+      if (newWidth !== canvasSize.width || newHeight !== canvasSize.height) {
+        setCanvasSize({ width: newWidth, height: newHeight });
+        console.log(`Canvas resized to: ${newWidth}x${newHeight}`);
+
+        // Optional: Consider resetting parts of game state on resize if needed
+        // For example, reposition bird if aspect ratio changes drastically
+        // gameStateRef.current.bird.x = newWidth * 0.2;
+        // gameStateRef.current.bird.y = newHeight / 2;
+      }
+    }
+  }, [dimensions, canvasSize.width, canvasSize.height]); // Depend on dimensions and current size
   
   // Keep game state in ref to avoid re-renders
   const gameStateRef = useRef(gameState);
@@ -127,7 +153,7 @@ export default function Game({
         // Handle keyboard space/up arrow as Play Again for accessibility
         if (e.type === 'keyboard' && (e.key === ' ' || e.code === 'Space' || e.key === 'ArrowUp')) {
           console.log("Play Again triggered by keyboard, resetting game");
-          // Use the resetGame utility function
+          // Reset game passes high score, no dimensions needed here
           gameStateRef.current = resetGame(gameStateRef.current);
           return; 
         }
@@ -155,17 +181,18 @@ export default function Game({
     if (gameStateRef.current.gameState === GAME_STATES.MENU || 
         gameStateRef.current.gameState === GAME_STATES.READY) {
       console.log("Starting game");
-      gameStateRef.current.gameState = GAME_STATES.PLAYING;
-      gameStateRef.current = handleGameInput(gameStateRef.current);
+      // Pass canvas dimensions when starting the game via handleGameInput
+      gameStateRef.current = handleGameInput(gameStateRef.current, canvasSize.width, canvasSize.height);
       return; 
     }
     
     // Regular game input handling (only if playing)
     if (gameStateRef.current.gameState === GAME_STATES.PLAYING) {
-        gameStateRef.current = handleGameInput(gameStateRef.current);
+        // birdJump doesn't need dimensions
+        gameStateRef.current = handleGameInput(gameStateRef.current, canvasSize.width, canvasSize.height);
     }
 
-  }, []);
+  }, [canvasSize.width, canvasSize.height]);
 
   // Start game loop once assets are loaded and canvas is ready
   useEffect(() => {
@@ -186,7 +213,7 @@ export default function Game({
         }
         
         // Update game state in the ref (no re-render)
-        const newState = updateGame(gameStateRef.current, timestamp);
+        const newState = updateGame(gameStateRef.current, timestamp, canvasSize.width, canvasSize.height);
         
         // Store previous scores to check for changes
         const prevScore = gameStateRef.current.score;
@@ -227,7 +254,7 @@ export default function Game({
         }
         
         // Render the game using the ref state and store returned button areas
-        const buttonAreas = renderGame(ctx, gameStateRef.current, assets);
+        const buttonAreas = renderGame(ctx, gameStateRef.current, assets, canvasSize.width, canvasSize.height);
         buttonAreasRef.current = buttonAreas || {}; // Update button areas, default to empty object if null
         
         // Continue the loop
@@ -270,7 +297,7 @@ export default function Game({
       canvas.removeEventListener('touchstart', handleTap);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isLoading, assets, handleTap, onScoreUpdate, onGameOver]);
+  }, [isLoading, assets, handleTap, onScoreUpdate, onGameOver, canvasSize.width, canvasSize.height]);
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full relative">
@@ -291,17 +318,15 @@ export default function Game({
           </button>
         </div>
       ) : (
-        <div className="relative">
+        <div ref={containerRef} className="relative w-full h-auto max-w-screen-sm mx-auto aspect-w-16 aspect-h-9"> 
           <canvas
             ref={canvasRef}
-            width={GAME_SETTINGS.CANVAS_WIDTH}
-            height={GAME_SETTINGS.CANVAS_HEIGHT}
-            className="border border-gray-300 rounded-lg shadow-lg"
+            width={canvasSize.width}
+            height={canvasSize.height}
+            className="border border-gray-300 rounded-lg shadow-lg w-full h-full object-contain"
             style={{ 
-              maxWidth: '100%', 
-              height: 'auto',
-              touchAction: 'none', // Prevents default touch actions
-              backgroundColor: '#4dc6ff' // Fallback background color
+              touchAction: 'none',
+              backgroundColor: '#4dc6ff'
             }}
           />
         </div>

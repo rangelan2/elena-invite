@@ -33,7 +33,7 @@
     "chrome-launcher": "^1.1.0",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
-    "lighthouse": "^11.7.0",
+    "lighthouse": "^12.5.1",
     "puppeteer": "^22.11.0",
     "tailwindcss": "^4"
   }

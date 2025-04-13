@@ -16,14 +16,14 @@ export function clearCanvas(ctx, width, height) {
 /**
  * Renders the background (sky and clouds)
  */
-export function renderBackground(ctx, clouds) {
+export function renderBackground(ctx, clouds, canvasWidth, canvasHeight) {
   // Draw floor background
   // const skyGradient = ctx.createLinearGradient(0, 0, 0, GAME_SETTINGS.CANVAS_HEIGHT);
   // skyGradient.addColorStop(0, '#70c5ce');
   // skyGradient.addColorStop(1, '#b3e5fc');
   
   ctx.fillStyle = '#8B4513'; // Wood brown for floor
-  ctx.fillRect(0, 0, GAME_SETTINGS.CANVAS_WIDTH, GAME_SETTINGS.CANVAS_HEIGHT);
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
   
   // Keep cloud drawing logic if needed, or remove/comment if not desired for floor
   // clouds.forEach(cloud => { ... });
@@ -32,39 +32,43 @@ export function renderBackground(ctx, clouds) {
 /**
  * Renders the ground
  */
-export function renderGround(ctx, groundOffset, groundImage) {
-  const groundY = GAME_SETTINGS.CANVAS_HEIGHT - GAME_SETTINGS.GROUND_HEIGHT;
+export function renderGround(ctx, groundOffset, groundImage, canvasWidth, canvasHeight) {
+  const groundY = canvasHeight - GAME_SETTINGS.GROUND_HEIGHT;
   
   // If ground image is loaded and not broken, use it
   if (groundImage && groundImage.complete && groundImage.naturalWidth !== 0) {
     try {
       // Draw ground with scrolling effect
-      ctx.drawImage(groundImage, -groundOffset, groundY);
-      ctx.drawImage(groundImage, -groundOffset + 336, groundY); // 336 is the width of the ground sprite
+      const groundWidth = groundImage.naturalWidth;
+      let xPos = -groundOffset;
+      while (xPos < canvasWidth) {
+        ctx.drawImage(groundImage, xPos, groundY);
+        xPos += groundWidth;
+      }
     } catch (error) {
       console.warn('Error drawing ground image:', error);
-      renderFallbackGround(ctx, groundY);
+      renderFallbackGround(ctx, groundY, canvasWidth);
     }
   } else {
     // Fallback if image isn't loaded or is broken
-    renderFallbackGround(ctx, groundY);
+    renderFallbackGround(ctx, groundY, canvasWidth);
   }
 }
 
 /**
  * Fallback ground rendering when image is not available
  */
-function renderFallbackGround(ctx, groundY) {
+function renderFallbackGround(ctx, groundY, canvasWidth) {
   // Draw ground matching GameCanvas style
   ctx.fillStyle = '#DED895'; // Main ground color from GameCanvas
-  ctx.fillRect(0, groundY, GAME_SETTINGS.CANVAS_WIDTH, GAME_SETTINGS.GROUND_HEIGHT);
+  ctx.fillRect(0, groundY, canvasWidth, GAME_SETTINGS.GROUND_HEIGHT);
   
   // Draw ground pattern (simplified version)
   ctx.fillStyle = '#C0AB72'; // Pattern color from GameCanvas
   const patternStep = 48; // Use a fixed step or adjust based on GAME_SETTINGS if needed
   // Note: groundOffset is not available here, so pattern won't scroll
   // If scrolling is desired, groundOffset needs to be passed or managed differently
-  for (let x = 0; x < GAME_SETTINGS.CANVAS_WIDTH; x += patternStep) {
+  for (let x = 0; x < canvasWidth; x += patternStep) {
     ctx.fillRect(x, groundY + (GAME_SETTINGS.GROUND_HEIGHT / 4), patternStep/2, 24); // Adjusted Y position
   }
 }
@@ -172,7 +176,7 @@ function renderFallbackBird(ctx, bird) {
 /**
  * Renders pipes
  */
-export function renderPipes(ctx, pipes, pipeImages) {
+export function renderPipes(ctx, pipes, pipeImages, canvasHeight) {
   pipes.forEach(pipe => {
     // Top pipe (upside down)
     if (pipeImages && pipeImages.top && pipeImages.top.complete && pipeImages.top.naturalWidth !== 0) {
@@ -200,20 +204,21 @@ export function renderPipes(ctx, pipes, pipeImages) {
     // Bottom pipe
     if (pipeImages && pipeImages.bottom && pipeImages.bottom.complete && pipeImages.bottom.naturalWidth !== 0) {
       try {
+        const bottomPipeHeight = canvasHeight - (pipe.gapY + pipe.gapHeight);
         ctx.drawImage(
           pipeImages.bottom, 
           pipe.x, 
           pipe.gapY + pipe.gapHeight, 
           pipe.width, 
-          GAME_SETTINGS.CANVAS_HEIGHT - (pipe.gapY + pipe.gapHeight)
+          bottomPipeHeight
         );
       } catch (error) {
         console.warn('Error drawing bottom pipe image:', error);
-        renderFallbackBottomPipe(ctx, pipe);
+        renderFallbackBottomPipe(ctx, pipe, canvasHeight);
       }
     } else {
       // Fallback if image isn't loaded or is broken
-      renderFallbackBottomPipe(ctx, pipe);
+      renderFallbackBottomPipe(ctx, pipe, canvasHeight);
     }
   });
 }
@@ -261,10 +266,10 @@ function renderFallbackTopPipe(ctx, pipe) {
 /**
  * Fallback bottom pipe rendering when image is not available
  */
-function renderFallbackBottomPipe(ctx, pipe) {
+function renderFallbackBottomPipe(ctx, pipe, canvasHeight) {
   // Draw bottom bench (using colors from GameCanvas)
   const width = pipe.width;
-  const height = GAME_SETTINGS.CANVAS_HEIGHT - (pipe.gapY + pipe.gapHeight);
+  const height = canvasHeight - (pipe.gapY + pipe.gapHeight);
   const x = pipe.x;
   const y = pipe.gapY + pipe.gapHeight;
   const capHeight = 20; // Keep cap height
@@ -301,7 +306,7 @@ function renderFallbackBottomPipe(ctx, pipe) {
 /**
  * Renders the score during gameplay
  */
-export function renderScore(ctx, score) {
+export function renderScore(ctx, score, canvasWidth) {
   ctx.fillStyle = 'white';
   ctx.strokeStyle = 'black';
   ctx.lineWidth = 2;
@@ -310,73 +315,73 @@ export function renderScore(ctx, score) {
   ctx.textBaseline = 'top';
   
   const formattedScore = formatScore(score);
-  ctx.strokeText(formattedScore, GAME_SETTINGS.CANVAS_WIDTH / 2, 50);
-  ctx.fillText(formattedScore, GAME_SETTINGS.CANVAS_WIDTH / 2, 50);
+  ctx.strokeText(formattedScore, canvasWidth / 2, 50);
+  ctx.fillText(formattedScore, canvasWidth / 2, 50);
 }
 
 /**
  * Renders the flash effect
  */
-export function renderFlash(ctx, flash) {
+export function renderFlash(ctx, flash, canvasWidth, canvasHeight) {
   if (flash.active) {
     ctx.fillStyle = `rgba(255, 255, 255, ${flash.alpha})`;
-    ctx.fillRect(0, 0, GAME_SETTINGS.CANVAS_WIDTH, GAME_SETTINGS.CANVAS_HEIGHT);
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
   }
 }
 
 /**
  * Renders the menu screen
  */
-export function renderMenu(ctx, titleImage, messageImage) {
+export function renderMenu(ctx, titleImage, messageImage, canvasWidth, canvasHeight) {
   // Title
   if (titleImage && titleImage.complete && titleImage.naturalWidth !== 0) {
     try {
-      const titleX = (GAME_SETTINGS.CANVAS_WIDTH - titleImage.width) / 2;
+      const titleX = (canvasWidth - titleImage.width) / 2;
       ctx.drawImage(titleImage, titleX, 80);
     } catch (error) {
       console.warn('Error drawing title image:', error);
-      renderFallbackTitle(ctx);
+      renderFallbackTitle(ctx, canvasWidth);
     }
   } else {
     // Fallback title text
-    renderFallbackTitle(ctx);
+    renderFallbackTitle(ctx, canvasWidth);
   }
   
   // "Tap to start" message
   if (messageImage && messageImage.complete && messageImage.naturalWidth !== 0) {
     try {
-      const messageX = (GAME_SETTINGS.CANVAS_WIDTH - messageImage.width) / 2;
-      ctx.drawImage(messageImage, messageX, 200);
+      const messageX = (canvasWidth - messageImage.width) / 2;
+      ctx.drawImage(messageImage, messageX, canvasHeight * 0.4);
     } catch (error) {
       console.warn('Error drawing message image:', error);
-      renderFallbackMessage(ctx);
+      renderFallbackMessage(ctx, canvasWidth, canvasHeight);
     }
   } else {
     // Fallback message text
-    renderFallbackMessage(ctx);
+    renderFallbackMessage(ctx, canvasWidth, canvasHeight);
   }
 }
 
 /**
  * Renders fallback title when image is not available
  */
-function renderFallbackTitle(ctx) {
+function renderFallbackTitle(ctx, canvasWidth) {
   ctx.fillStyle = 'white';
   ctx.strokeStyle = 'black';
   ctx.lineWidth = 2;
   ctx.font = 'bold 36px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.strokeText('RING BEARER', GAME_SETTINGS.CANVAS_WIDTH / 2, 90);
-  ctx.fillText('RING BEARER', GAME_SETTINGS.CANVAS_WIDTH / 2, 90);
-  ctx.strokeText('MINIGAME', GAME_SETTINGS.CANVAS_WIDTH / 2, 130);
-  ctx.fillText('MINIGAME', GAME_SETTINGS.CANVAS_WIDTH / 2, 130);
+  ctx.strokeText('RING BEARER', canvasWidth / 2, 90);
+  ctx.fillText('RING BEARER', canvasWidth / 2, 90);
+  ctx.strokeText('MINIGAME', canvasWidth / 2, 130);
+  ctx.fillText('MINIGAME', canvasWidth / 2, 130);
 }
 
 /**
  * Renders fallback message when image is not available
  */
-function renderFallbackMessage(ctx) {
+function renderFallbackMessage(ctx, canvasWidth, canvasHeight) {
   // Style for white text
   ctx.fillStyle = 'white';
   ctx.font = '16px "Press Start 2P"'; // Keep reduced font size for multi-line
@@ -389,53 +394,52 @@ function renderFallbackMessage(ctx) {
   ];
   
   const lineHeight = 20; // Adjust line height as needed
-  const startY = GAME_SETTINGS.CANVAS_HEIGHT / 2; // Adjust starting Y position
+  const startY = canvasHeight / 2; // Adjust starting Y position
 
   lines.forEach((line, index) => {
     const yPos = startY + index * lineHeight;
-    ctx.fillText(line, GAME_SETTINGS.CANVAS_WIDTH / 2, yPos);
+    ctx.fillText(line, canvasWidth / 2, yPos);
   });
 }
 
 /**
  * Renders the "Get Ready" screen
  */
-export function renderGetReady(ctx, readyImage, instructionImage) {
+export function renderGetReady(ctx, readyImage, instructionImage, canvasWidth, canvasHeight) {
   // Ready text/image
   if (readyImage && readyImage.complete && readyImage.naturalWidth !== 0) {
     try {
-      const readyX = (GAME_SETTINGS.CANVAS_WIDTH - readyImage.width) / 2;
+      const readyX = (canvasWidth - readyImage.width) / 2;
       ctx.drawImage(readyImage, readyX, 80);
     } catch (error) {
       console.warn('Error drawing ready image:', error);
-      renderFallbackReady(ctx);
+      renderFallbackReady(ctx, canvasWidth);
     }
   } else {
     // Fallback ready text
-    renderFallbackReady(ctx);
+    renderFallbackReady(ctx, canvasWidth);
   }
   
   // Tap instruction
   if (instructionImage && instructionImage.complete && instructionImage.naturalWidth !== 0) {
     try {
-      const instructionX = (GAME_SETTINGS.CANVAS_WIDTH - instructionImage.width) / 2;
-      ctx.drawImage(instructionImage, instructionX, 200);
+      const instructionX = (canvasWidth - instructionImage.width) / 2;
+      ctx.drawImage(instructionImage, instructionX, canvasHeight * 0.45);
     } catch (error) {
       console.warn('Error drawing instruction image:', error);
-      renderFallbackInstruction(ctx);
+      renderFallbackInstruction(ctx, canvasWidth, canvasHeight);
     }
   } else {
     // Fallback instruction
-    renderFallbackInstruction(ctx);
+    renderFallbackInstruction(ctx, canvasWidth, canvasHeight);
   }
 }
 
 /**
  * Renders fallback ready text when image is not available
  */
-function renderFallbackReady(ctx) {
-  const canvasWidth = GAME_SETTINGS.CANVAS_WIDTH;
-  const maxWidth = canvasWidth - 40; // Provide some margin
+function renderFallbackReady(ctx, canvasWidth) {
+  const maxWidth = canvasWidth - 40; // Use dynamic canvasWidth for max width calc
   
   ctx.fillStyle = 'white';
   ctx.strokeStyle = 'black';
@@ -466,8 +470,8 @@ function renderFallbackReady(ctx) {
     ctx.fillText(instruction1.substring(0, breakPoint), canvasWidth / 2, 140);
     
     // Line 2
-    ctx.strokeText(instruction1.substring(breakPoint), canvasWidth / 2, 165);
-    ctx.fillText(instruction1.substring(breakPoint), canvasWidth / 2, 165);
+    ctx.strokeText(instruction1.substring(breakPoint + 1), canvasWidth / 2, 165);
+    ctx.fillText(instruction1.substring(breakPoint + 1), canvasWidth / 2, 165);
     
     // Line 3 (second instruction)
     ctx.strokeText(instruction2, canvasWidth / 2, 190);
@@ -485,14 +489,16 @@ function renderFallbackReady(ctx) {
 /**
  * Renders fallback instruction when image is not available
  */
-function renderFallbackInstruction(ctx) {
-  // Draw an arrow pointing up
+function renderFallbackInstruction(ctx, canvasWidth, canvasHeight) {
+  // Draw an arrow pointing up, centered horizontally and positioned vertically
+  const arrowY = canvasHeight * 0.5; // Position arrow vertically
   ctx.beginPath();
-  ctx.moveTo(GAME_SETTINGS.CANVAS_WIDTH / 2, 220);
-  ctx.lineTo(GAME_SETTINGS.CANVAS_WIDTH / 2, 240);
-  ctx.lineTo(GAME_SETTINGS.CANVAS_WIDTH / 2 - 10, 230);
-  ctx.moveTo(GAME_SETTINGS.CANVAS_WIDTH / 2, 240);
-  ctx.lineTo(GAME_SETTINGS.CANVAS_WIDTH / 2 + 10, 230);
+  ctx.moveTo(canvasWidth / 2, arrowY);
+  ctx.lineTo(canvasWidth / 2, arrowY + 20);
+  ctx.moveTo(canvasWidth / 2, arrowY);
+  ctx.lineTo(canvasWidth / 2 - 10, arrowY + 10);
+  ctx.moveTo(canvasWidth / 2, arrowY);
+  ctx.lineTo(canvasWidth / 2 + 10, arrowY + 10);
   ctx.strokeStyle = 'white';
   ctx.lineWidth = 3;
   ctx.stroke();
@@ -501,37 +507,39 @@ function renderFallbackInstruction(ctx) {
 /**
  * Renders the game over screen
  */
-export function renderGameOver(ctx, gameOverImage, scoreboardImage, score, highScore, medalAwarded, medals) {
-  const canvasWidth = GAME_SETTINGS.CANVAS_WIDTH;
-  const canvasHeight = GAME_SETTINGS.CANVAS_HEIGHT;
+export function renderGameOver(ctx, gameOverImage, score, highScore, canvasWidth, canvasHeight) {
+  // Removed unused params: scoreboardImage, medalAwarded, medals
   
   // Draw Game Over title
   if (gameOverImage && gameOverImage.complete && gameOverImage.naturalWidth !== 0) {
     try {
       const gameOverX = (canvasWidth - gameOverImage.width) / 2;
-      ctx.drawImage(gameOverImage, gameOverX, 70);
+      const gameOverY = canvasHeight * 0.1; // Position relative to height
+      ctx.drawImage(gameOverImage, gameOverX, gameOverY);
     } catch (error) {
       console.warn('Error drawing game over image:', error);
-      renderFallbackGameOver(ctx);
+      renderFallbackGameOver(ctx, canvasWidth, canvasHeight);
     }
   } else {
-    // Fallback game over text
-    renderFallbackGameOver(ctx);
+    renderFallbackGameOver(ctx, canvasWidth, canvasHeight);
   }
   
   // Draw white box for Save the Date content
-  const boxWidth = canvasWidth * 0.85;
+  const boxWidth = Math.min(canvasWidth * 0.85, 400); // Add max width
   const boxHeight = 220;
   const boxX = (canvasWidth - boxWidth) / 2;
-  const boxY = 140;
+  // Position box below title, ensuring space
+  const titleBottom = canvasHeight * 0.1 + (gameOverImage?.height || 50) + 20; // Estimate title height + padding
+  const boxY = Math.max(titleBottom, canvasHeight * 0.25); // Start box below title or at 25% height
   const cornerRadius = 10;
   
+  const textMaxWidth = boxWidth - 30;
+
   // Draw white box with rounded corners
   ctx.fillStyle = 'white';
   ctx.strokeStyle = 'black';
   ctx.lineWidth = 3;
   
-  // Draw rounded rectangle
   ctx.beginPath();
   ctx.moveTo(boxX + cornerRadius, boxY);
   ctx.lineTo(boxX + boxWidth - cornerRadius, boxY);
@@ -544,89 +552,65 @@ export function renderGameOver(ctx, gameOverImage, scoreboardImage, score, highS
   ctx.quadraticCurveTo(boxX, boxY, boxX + cornerRadius, boxY);
   ctx.closePath();
   
-  // Add shadow
   ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
   ctx.shadowBlur = 10;
   ctx.shadowOffsetX = 3;
   ctx.shadowOffsetY = 3;
   ctx.fill();
   
-  // Reset shadow before stroke
   ctx.shadowColor = 'transparent';
   ctx.shadowBlur = 0;
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
   ctx.stroke();
-  
-  // Available width for text
-  const textMaxWidth = boxWidth - 30; // 15px padding on each side
-  
+
   // Draw Save the Date content
   ctx.fillStyle = 'black';
   ctx.strokeStyle = 'black';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  
-  // Helper function to measure and potentially reduce font size
+
   const fitText = (text, fontSize, maxFontSize, minFontSize) => {
     ctx.font = `bold ${maxFontSize}px Arial`;
     let currentSize = maxFontSize;
-    
     while (ctx.measureText(text).width > textMaxWidth && currentSize > minFontSize) {
       currentSize -= 1;
       ctx.font = `bold ${currentSize}px Arial`;
     }
-    
     return currentSize;
   };
-  
-  // Heading - adjust font size if needed
+
+  // Heading
   const headingSize = fitText('Save the date for our wedding!', 22, 22, 16);
   ctx.font = `bold ${headingSize}px Arial`;
   ctx.fillText('Save the date for our wedding!', canvasWidth / 2, boxY + 40);
-  
+
   // Date
   const dateSize = fitText('May 16, 2026', 28, 28, 22);
   ctx.font = `bold ${dateSize}px Arial`;
   ctx.fillText('May 16, 2026', canvasWidth / 2, boxY + 85);
-  
+
   // Supporting text
   ctx.font = '16px Arial';
-  
-  // Check if the first line fits, otherwise split it
   const supportText1 = 'Mark your calendar — we can\'t wait to';
+  const supportText2 = 'gather again with you.';
+  // Basic wrapping logic
   if (ctx.measureText(supportText1).width > textMaxWidth) {
-    const words = supportText1.split(' ');
-    let line1 = words[0];
-    let line2 = '';
-    
-    for (let i = 1; i < words.length; i++) {
-      const testLine = line1 + ' ' + words[i];
-      if (ctx.measureText(testLine).width <= textMaxWidth) {
-        line1 = testLine;
-      } else {
-        line2 = words.slice(i).join(' ');
-        break;
-      }
-    }
-    
-    ctx.fillText(line1, canvasWidth / 2, boxY + 120);
-    ctx.fillText(line2, canvasWidth / 2, boxY + 140);
-    ctx.fillText('gather again with you.', canvasWidth / 2, boxY + 160);
+     const breakPoint = supportText1.lastIndexOf(' ', supportText1.length/2);
+     ctx.fillText(supportText1.substring(0, breakPoint), canvasWidth / 2, boxY + 120);
+     ctx.fillText(supportText1.substring(breakPoint + 1), canvasWidth / 2, boxY + 140);
+     ctx.fillText(supportText2, canvasWidth / 2, boxY + 160);
   } else {
     ctx.fillText(supportText1, canvasWidth / 2, boxY + 125);
-    ctx.fillText('gather again with you.', canvasWidth / 2, boxY + 145);
+    ctx.fillText(supportText2, canvasWidth / 2, boxY + 145);
   }
-  
+
   // Final line
   ctx.font = 'italic 13px Arial';
-  
-  // Break up the final lines to ensure they fit
   const finalText1 = 'Because this story still has chapters left to write —';
   const finalText2 = 'and we want you in the next one.';
-  
+  // Basic wrapping
   if (ctx.measureText(finalText1).width > textMaxWidth) {
-    // First part is too long, break it up
     const breakPoint = finalText1.lastIndexOf(' ', finalText1.length / 2);
     ctx.fillText(finalText1.substring(0, breakPoint), canvasWidth / 2, boxY + 175);
     ctx.fillText(finalText1.substring(breakPoint + 1), canvasWidth / 2, boxY + 190);
@@ -635,26 +619,21 @@ export function renderGameOver(ctx, gameOverImage, scoreboardImage, score, highS
     ctx.fillText(finalText1, canvasWidth / 2, boxY + 180);
     ctx.fillText(finalText2, canvasWidth / 2, boxY + 200);
   }
+
+  // Draw score (optional, as GameHUD handles this)
+  // ctx.font = 'bold 16px Arial';
+  // ctx.fillText(`Score: ${formatScore(score)} | Best: ${formatScore(highScore)}`, canvasWidth / 2, boxY + boxHeight + 30);
   
-  // Draw score at the bottom (outside the box)
-  ctx.font = 'bold 16px Arial';
-  ctx.fillText(`Score: ${formatScore(score)} | Best: ${formatScore(highScore)}`, canvasWidth / 2, boxY + boxHeight + 30);
-  
-  // Draw buttons
-  const buttonY = boxY + boxHeight + 60;
+  // Draw Play Again button (only this one)
+  const buttonY = Math.min(boxY + boxHeight + 40, canvasHeight - 50); // Ensure button fits
   const buttonHeight = 32;
   const buttonPadding = 10;
-  const buttonMargin = 10; // Reverted margin
   
-  // Play Again button text
   const playAgainText = 'Play Again';
-  
-  // Calculate button width
-  ctx.font = 'bold 16px Arial'; // Ensure font is set before measuring
+  ctx.font = 'bold 16px Arial';
   const playAgainWidth = ctx.measureText(playAgainText).width + buttonPadding * 2;
-  const playAgainX = canvasWidth / 2 - playAgainWidth / 2; // Center the single button
+  const playAgainX = canvasWidth / 2 - playAgainWidth / 2; // Center the button
   
-  // Draw Play Again button (green with black border)
   ctx.fillStyle = '#8BC34A'; // Green
   ctx.strokeStyle = 'black';
   ctx.lineWidth = 2;
@@ -663,14 +642,12 @@ export function renderGameOver(ctx, gameOverImage, scoreboardImage, score, highS
   ctx.fill();
   ctx.stroke();
   
-  // Play Again text
   ctx.fillStyle = 'black';
   ctx.textAlign = 'center'; 
   ctx.textBaseline = 'middle';
   ctx.fillText(playAgainText, playAgainX + playAgainWidth / 2, buttonY + buttonHeight / 2);
   
-  // Store button positions for click detection
-  // Only return the play again button as it was originally
+  // Return button area for click detection
   return {
     playAgainButton: {
       x: playAgainX,
@@ -678,22 +655,22 @@ export function renderGameOver(ctx, gameOverImage, scoreboardImage, score, highS
       width: playAgainWidth,
       height: buttonHeight
     }
-    // Removed backToRsvpButton
   };
 }
 
 /**
  * Renders fallback game over text
  */
-function renderFallbackGameOver(ctx) {
+function renderFallbackGameOver(ctx, canvasWidth, canvasHeight) {
   ctx.fillStyle = 'white';
   ctx.strokeStyle = 'black';
   ctx.lineWidth = 2;
   ctx.font = 'bold 36px Arial';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.strokeText('GAME OVER', GAME_SETTINGS.CANVAS_WIDTH / 2, 100);
-  ctx.fillText('GAME OVER', GAME_SETTINGS.CANVAS_WIDTH / 2, 100);
+  const yPos = canvasHeight * 0.15; // Position relative to height
+  ctx.strokeText('GAME OVER', canvasWidth / 2, yPos); // Use dynamic dimensions
+  ctx.fillText('GAME OVER', canvasWidth / 2, yPos);
 }
 
 /**
@@ -782,45 +759,56 @@ function renderFallbackMedal(ctx, x, y, size, medalType) {
 /**
  * Main render function that handles all game rendering based on game state
  */
-export function renderGame(ctx, gameState, assets) {
-  clearCanvas(ctx, GAME_SETTINGS.CANVAS_WIDTH, GAME_SETTINGS.CANVAS_HEIGHT);
+export function renderGame(ctx, gameState, assets, canvasWidth, canvasHeight) {
+  clearCanvas(ctx, canvasWidth, canvasHeight);
   
   // Always render background, ground, and bird
-  renderBackground(ctx, gameState.clouds);
-  renderGround(ctx, gameState.groundOffset, assets?.ground);
+  renderBackground(ctx, gameState.clouds, canvasWidth, canvasHeight);
+  renderGround(ctx, gameState.groundOffset, assets?.ground, canvasWidth, canvasHeight);
   renderBird(ctx, gameState.bird, assets?.birdSprites);
   
   // Render pipes when playing or game over
   if (gameState.gameState === GAME_STATES.PLAYING || 
       gameState.gameState === GAME_STATES.GAME_OVER) {
-    renderPipes(ctx, gameState.pipes, assets?.pipes);
+    renderPipes(ctx, gameState.pipes, assets?.pipes, canvasHeight);
   }
   
   // Flash effect
-  renderFlash(ctx, gameState.flash);
+  renderFlash(ctx, gameState.flash, canvasWidth, canvasHeight);
   
+  let buttonAreas = null; // Initialize button areas
+
   // Render UI based on game state
   switch (gameState.gameState) {
     case GAME_STATES.MENU:
-      renderMenu(ctx, assets?.title, assets?.tapToStart);
+      renderMenu(ctx, assets?.title, assets?.tapToStart, canvasWidth, canvasHeight);
       break;
       
     case GAME_STATES.READY:
-      renderGetReady(ctx, assets?.getReady, assets?.instruction);
+      renderGetReady(ctx, assets?.getReady, assets?.instruction, canvasWidth, canvasHeight);
       break;
       
     case GAME_STATES.PLAYING:
-      renderScore(ctx, gameState.score);
+      renderScore(ctx, gameState.score, canvasWidth);
       break;
       
     case GAME_STATES.GAME_OVER:
-      // Do nothing here - Game Over UI is handled by GameHUD component
-      // We still render pipes above, and background/ground/bird before the switch
+      // Render the Game Over UI (Save the Date card + button) and get button areas
+      buttonAreas = renderGameOver(
+        ctx, 
+        assets?.gameOver, 
+        gameState.score, 
+        gameState.highScore,
+        canvasWidth, 
+        canvasHeight
+      );
       break;
       
     default:
       break;
   }
+
+  return buttonAreas; // Return button areas calculated in renderGameOver
 }
 
 /**

@@ -103,7 +103,7 @@ export function birdJump(bird, jumpForce) {
 /**
  * Updates pipe positions and adds new pipes as needed
  */
-export function updatePipes(gameState, deltaTime, pipeSpeed) {
+export function updatePipes(gameState, deltaTime, pipeSpeed, canvasWidth, canvasHeight) {
   const { pipes, lastPipeAdded } = gameState;
   let newPipes = [...pipes];
   let newLastPipeAdded = lastPipeAdded;
@@ -117,13 +117,15 @@ export function updatePipes(gameState, deltaTime, pipeSpeed) {
   // Add new pipe when needed
   newLastPipeAdded += deltaTime;
   if (newLastPipeAdded >= GAME_SETTINGS.PIPE_SPACING) {
+    // Adjust gap Y based on canvas height (optional, could keep min/max absolute)
+    const minGapY = GAME_SETTINGS.MIN_PIPE_GAP_Y;
+    const maxGapY = canvasHeight - GAME_SETTINGS.GROUND_HEIGHT - GAME_SETTINGS.PIPE_GAP_HEIGHT - 50; // Ensure gap fits
+
     const newPipe = {
-      x: GAME_SETTINGS.CANVAS_WIDTH,
+      x: canvasWidth, // Use dynamic canvasWidth
       width: 52,
       gapY: Math.floor(
-        Math.random() * 
-        (GAME_SETTINGS.MAX_PIPE_GAP_Y - GAME_SETTINGS.MIN_PIPE_GAP_Y) + 
-        GAME_SETTINGS.MIN_PIPE_GAP_Y
+        Math.random() * (maxGapY - minGapY) + minGapY // Use adjusted maxGapY
       ),
       gapHeight: GAME_SETTINGS.PIPE_GAP_HEIGHT,
       passed: false
@@ -174,7 +176,7 @@ export function updateScore(gameState) {
 /**
  * Checks for game over conditions
  */
-export function checkGameOver(gameState) {
+export function checkGameOver(gameState, canvasHeight) {
   const { bird, pipes } = gameState;
   const birdBox = {
     x: bird.x - bird.width / 2,
@@ -184,7 +186,7 @@ export function checkGameOver(gameState) {
   };
   
   // Check collision with ground
-  const groundY = GAME_SETTINGS.CANVAS_HEIGHT - GAME_SETTINGS.GROUND_HEIGHT;
+  const groundY = canvasHeight - GAME_SETTINGS.GROUND_HEIGHT;
   if (bird.y + bird.height / 2 >= groundY) {
     return true;
   }
@@ -207,7 +209,7 @@ export function checkGameOver(gameState) {
       x: pipe.x,
       y: pipe.gapY + pipe.gapHeight,
       width: pipe.width,
-      height: GAME_SETTINGS.CANVAS_HEIGHT - (pipe.gapY + pipe.gapHeight)
+      height: canvasHeight - (pipe.gapY + pipe.gapHeight)
     };
     
     // Using bounding box for collision detection
@@ -324,7 +326,7 @@ export function changeBirdColor(bird, color) {
 /**
  * Handles user input
  */
-export function handleGameInput(gameState) {
+export function handleGameInput(gameState, canvasWidth, canvasHeight) {
   let newState = { ...gameState };
   
   // Log current state
@@ -341,10 +343,11 @@ export function handleGameInput(gameState) {
       // Transition to PLAYING state
       console.log("Transitioning from READY to PLAYING state");
       newState.gameState = GAME_STATES.PLAYING;
-      // Reset bird position/velocity
+      // Reset bird position/velocity relative to canvas size
       newState.bird = {
         ...newState.bird,
-        y: GAME_SETTINGS.BIRD_START_Y,
+        x: canvasWidth * 0.2, // Place bird 20% across the screen
+        y: canvasHeight / 2,  // Place bird vertically centered
         velocity: -7 // Initial jump
       };
       break;
@@ -371,7 +374,7 @@ export function handleGameInput(gameState) {
 /**
  * Main game update function (called on each frame)
  */
-export function updateGame(gameState, currentTime) {
+export function updateGame(gameState, currentTime, canvasWidth, canvasHeight) {
   const deltaTime = gameState.lastTime ? (currentTime - gameState.lastTime) / (1000 / 60) : 1;
   let newGameState = { ...gameState, lastTime: currentTime };
   
@@ -386,7 +389,7 @@ export function updateGame(gameState, currentTime) {
     );
     
     // Update pipes
-    const pipeUpdate = updatePipes(newGameState, deltaTime, 2.5);
+    const pipeUpdate = updatePipes(newGameState, deltaTime, 2.5, canvasWidth, canvasHeight);
     newGameState.pipes = pipeUpdate.pipes;
     newGameState.lastPipeAdded = pipeUpdate.lastPipeAdded;
     
@@ -397,7 +400,7 @@ export function updateGame(gameState, currentTime) {
     newGameState.medalAwarded = scoreUpdate.medalAwarded;
     
     // Check for game over
-    if (checkGameOver(newGameState)) {
+    if (checkGameOver(newGameState, canvasHeight)) {
       newGameState.gameState = GAME_STATES.GAME_OVER;
       newGameState.flash = activateFlash();
       newGameState.highScore = Math.max(newGameState.highScore, newGameState.score);
@@ -414,7 +417,7 @@ export function updateGame(gameState, currentTime) {
   newGameState.clouds = updateClouds(
     newGameState.clouds, 
     deltaTime, 
-    GAME_SETTINGS.CANVAS_WIDTH
+    canvasWidth
   );
   
   newGameState.flash = updateFlash(newGameState.flash, deltaTime);
