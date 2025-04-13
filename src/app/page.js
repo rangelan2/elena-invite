@@ -22,7 +22,7 @@ const storyMoments = [
 
 For years, they kept the line warm.
 
-The kind of calls that stretch past midnight and make you feel more like yourself when they're done.
+The kind of calls that stretch past midnight and make you feel more like yourself when they\'re done.
 
 Long-distance Doordash orders from Buckeye Donuts.
 

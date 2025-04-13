@@ -7,7 +7,8 @@ import {
   GAME_SETTINGS, 
   createInitialGameState, 
   handleGameInput, 
-  updateGame
+  updateGame,
+  resetGame
 } from './utils/gameStateUtils';
 import { renderGame, preloadAssets } from './utils/renderUtils';
 
@@ -19,7 +20,7 @@ export default function Game({
   onGameOver, 
   showLeaderboard, 
   onShowLeaderboard, 
-  onCloseLeaderboard 
+  onCloseLeaderboard
 }) {
   const router = useRouter();
   const canvasRef = useRef(null);
@@ -125,8 +126,9 @@ export default function Game({
       } else {
         // Handle keyboard space/up arrow as Play Again for accessibility
         if (e.type === 'keyboard' && (e.key === ' ' || e.code === 'Space' || e.key === 'ArrowUp')) {
-          console.log("Play Again triggered by keyboard");
-          gameStateRef.current = createInitialGameState(); 
+          console.log("Play Again triggered by keyboard, resetting game");
+          // Use the resetGame utility function
+          gameStateRef.current = resetGame(gameStateRef.current);
           return; 
         }
         return;
@@ -142,8 +144,9 @@ export default function Game({
           x <= playAgainBtn.x + playAgainBtn.width && 
           y >= playAgainBtn.y && 
           y <= playAgainBtn.y + playAgainBtn.height) {
-        console.log("Play Again button (canvas fallback) clicked");
-        gameStateRef.current = createInitialGameState();
+        console.log("Play Again button (canvas fallback) clicked, resetting game");
+        // Use the resetGame utility function
+        gameStateRef.current = resetGame(gameStateRef.current);
         return; // Exit after handling click
       }
     }
@@ -162,7 +165,7 @@ export default function Game({
         gameStateRef.current = handleGameInput(gameStateRef.current);
     }
 
-  }, []); // Removed router dependency
+  }, []);
 
   // Start game loop once assets are loaded and canvas is ready
   useEffect(() => {

@@ -16,18 +16,22 @@ export default function PlayPage() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showScoreForm, setShowScoreForm] = useState(false);
   const [finalScore, setFinalScore] = useState(0);
+  const [gameKey, setGameKey] = useState(0);
   
   // Function to handle game restart
   const handleRestart = () => {
-    console.log("Game restart requested");
+    console.log("Game restart requested, incrementing game key");
     // Clear all forms and overlays first
     setShowScoreForm(false);
     setShowLeaderboard(false);
     
-    // Then reset game state
+    // Then reset game state in parent
     setGameOver(false);
     setGameStarted(true);
     setScore(0);
+    
+    // Increment key to force Game component re-mount
+    setGameKey(prevKey => prevKey + 1);
   };
 
   // Function to update score
@@ -112,11 +116,13 @@ export default function PlayPage() {
       
       <div className="w-full max-w-md relative">
         <Game 
+          key={gameKey}
           onScoreUpdate={handleScoreUpdate}
           onGameOver={handleGameOver}
           showLeaderboard={showLeaderboard}
           onShowLeaderboard={handleShowLeaderboard}
           onCloseLeaderboard={() => setShowLeaderboard(false)}
+          onRestartRequest={handleRestart}
         />
         
         <GameHUD 

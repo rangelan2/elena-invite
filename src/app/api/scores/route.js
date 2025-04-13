@@ -1,5 +1,9 @@
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 import { NextResponse } from 'next/server';
+
+// Initialize Redis Client from environment variables
+// (UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN)
+const redis = Redis.fromEnv();
 
 const SCORES_KEY = 'flappyScores';
 const MAX_SCORES = 100; // Keep top 100 scores
@@ -29,19 +33,27 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Invalid limit parameter' }, { status: 400 });
     }
 
-    // Retrieve scores from KV store (using lrange to get all elements, then sorting/slicing)
-    // KV stores lists, we'll treat it like a sorted set by managing sorting ourselves.
-    let scoreStrings = await kv.lrange(SCORES_KEY, 0, -1) || [];
-    
+    // Retrieve scores from Redis store
+    let items = await redis.lrange(SCORES_KEY, 0, -1) || [];
+
     // Parse the score strings into objects
-    let parsedScores = scoreStrings.map(s => {
+    let parsedScores = items.map(s => {
       try {
-        return JSON.parse(s);
+        // Check if s is a string before parsing
+        if (typeof s === 'string') {
+          return JSON.parse(s);
+        } else if (typeof s === 'object' && s !== null) {
+          // If it's already an object, return it directly
+          return s;
+        }
+        // If it's neither string nor object, treat as invalid
+        console.warn("Unexpected item type in Redis list during GET:", typeof s, s);
+        return null;
       } catch (e) {
         console.error("Failed to parse score string in GET:", s, e);
-        return null; // Handle potential parsing errors
+        return null; // Handle potential parsing errors on strings
       }
-    }).filter(s => s !== null); // Filter out any nulls from parsing errors
+    }).filter(s => s !== null && typeof s.score === 'number'); // Ensure valid score objects
 
     // Sort by score descending (now using parsed objects)
     parsedScores.sort((a, b) => b.score - a.score);
@@ -77,48 +89,69 @@ export async function POST(request) {
       timestamp: new Date().toISOString(), // Use ISO string format
     };
 
-    // Add the new score to the list in KV (stringify first)
-    await kv.lpush(SCORES_KEY, JSON.stringify(newScore));
+    // Add the new score to the list in Redis (stringify first)
+    await redis.lpush(SCORES_KEY, JSON.stringify(newScore));
 
     // Keep the list trimmed to MAX_SCORES
-    // Retrieve all, sort, trim, and overwrite. This is simpler for KV lists.
-    let scoreStrings = await kv.lrange(SCORES_KEY, 0, -1);
-    let allScores = scoreStrings.map(s => {
+    // Retrieve all, sort, trim, and overwrite.
+    let items = await redis.lrange(SCORES_KEY, 0, -1);
+    let allScores = items.map(s => {
       try {
-        return JSON.parse(s);
+        // Check if s is a string before parsing
+        if (typeof s === 'string') {
+          return JSON.parse(s);
+        } else if (typeof s === 'object' && s !== null) {
+          // If it's already an object, return it directly
+          return s;
+        }
+        // If it's neither string nor object, treat as invalid
+        console.warn("Unexpected item type in Redis list:", typeof s, s);
+        return null;
       } catch (e) {
-        console.error("Failed to parse score string:", s, e);
-        return null; // Handle potential parsing errors
+        console.error("Failed to process score item:", s, e);
+        return null; // Handle potential parsing errors on strings
       }
-    }).filter(s => s !== null); // Filter out any nulls from parsing errors
-    
+    }).filter(s => s !== null && typeof s.score === 'number'); // Ensure valid score objects
+
     allScores.sort((a, b) => b.score - a.score);
     const trimmedScores = allScores.slice(0, MAX_SCORES);
 
-    // To overwrite, we need to delete the key and then push the trimmed scores back.
-    // This needs to be atomic if possible, but KV doesn't have direct atomic list replace.
-    // We'll use a MULTI/EXEC transaction.
-    const multi = kv.multi();
-    multi.del(SCORES_KEY);
+    // Use a pipeline to atomically delete and repopulate the list
+    const pipe = redis.pipeline();
+    pipe.del(SCORES_KEY);
     if (trimmedScores.length > 0) {
-      // lpush pushes items one by one, so push them in reverse order to maintain sort
-      for (let i = trimmedScores.length - 1; i >= 0; i--) {
-        // Stringify before pushing back
-        multi.lpush(SCORES_KEY, JSON.stringify(trimmedScores[i]));
+      // Ensure scores are stringified before pushing back
+      const stringifiedScores = trimmedScores.map(score => JSON.stringify(score));
+      // lpush pushes items one by one to the head, so push them in reverse order
+      // of the sorted list to maintain the desired order in Redis.
+      for (let i = stringifiedScores.length - 1; i >= 0; i--) {
+        pipe.lpush(SCORES_KEY, stringifiedScores[i]);
       }
     }
-    await multi.exec();
+    await pipe.exec();
 
     // Optionally, return the added score or just success status
     return NextResponse.json({ message: 'Score added successfully', scoreId: newScore.id }, { status: 201 });
 
   } catch (error) {
     console.error("Detailed error adding score:", error);
-    // Handle potential rate limits or other KV errors
+    // Handle potential rate limits or other Redis errors
      if (error.message.includes('RATE_LIMIT')) {
        return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
      }
     return NextResponse.json({ error: 'Failed to add score' }, { status: 500 });
+  }
+}
+
+// DELETE handler to clear all scores (Use with caution!)
+export async function DELETE(request) {
+  try {
+    await redis.del(SCORES_KEY);
+    console.log(`KV list '${SCORES_KEY}' deleted.`);
+    return NextResponse.json({ message: 'All scores cleared successfully' }, { status: 200 });
+  } catch (error) {
+    console.error("Detailed error clearing scores:", error);
+    return NextResponse.json({ error: 'Failed to clear scores' }, { status: 500 });
   }
 }
 

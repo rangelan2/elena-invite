@@ -127,12 +127,9 @@ function addPersonalScore(score) {
   }
 }
 
-// Modify addHighScore to also save the score locally for the personal list
 // We need to redefine addHighScore slightly to incorporate this.
 
 // Store the original API function
-// const addHighScoreToApi = addHighScore; // Remove this line
-
 // Create the new wrapper function - this is the one we export
 export async function addHighScore(name, score) {
   // First, add to the global leaderboard via API

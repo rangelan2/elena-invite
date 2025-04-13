@@ -82,65 +82,74 @@ const imageCache = {};
  */
 export function preloadImages() {
   // Flatten all sprite paths into a single array
-  const allImages = [
-    ...Object.values(SPRITE_PATHS.BIRD.YELLOW),
-    ...Object.values(SPRITE_PATHS.BIRD.RED),
-    ...Object.values(SPRITE_PATHS.BIRD.BLUE),
-    ...Object.values(SPRITE_PATHS.BACKGROUND),
-    ...Object.values(SPRITE_PATHS.PIPE.GREEN),
-    ...Object.values(SPRITE_PATHS.PIPE.RED),
-    SPRITE_PATHS.GROUND,
-    SPRITE_PATHS.GAMEOVER,
-    SPRITE_PATHS.TITLE,
-    ...SPRITE_PATHS.NUMBERS,
-    ...Object.values(SPRITE_PATHS.MEDAL),
-    ...Object.values(SPRITE_PATHS.UI),
-    ...SPRITE_PATHS.CLOUDS
-  ];
+  // const allImages = [
+  //   ...Object.values(SPRITE_PATHS.BIRD.YELLOW),
+  //   ...Object.values(SPRITE_PATHS.BIRD.RED),
+  //   ...Object.values(SPRITE_PATHS.BIRD.BLUE),
+  //   ...Object.values(SPRITE_PATHS.BACKGROUND),
+  //   ...Object.values(SPRITE_PATHS.PIPE.GREEN),
+  //   ...Object.values(SPRITE_PATHS.PIPE.RED),
+  //   SPRITE_PATHS.GROUND,
+  //   SPRITE_PATHS.GAMEOVER,
+  //   SPRITE_PATHS.TITLE,
+  //   ...SPRITE_PATHS.NUMBERS,
+  //   ...Object.values(SPRITE_PATHS.MEDAL),
+  //   ...Object.values(SPRITE_PATHS.UI),
+  //   ...SPRITE_PATHS.CLOUDS
+  // ];
 
-  allImages.forEach(src => {
-    if (src) loadImage(src);
-  });
+  // allImages.forEach(src => {
+  //   if (src) loadImage(src);
+  // });
+  // --- Do nothing, prevent preloading --- 
 }
 
 /**
  * Loads an image into the cache
  */
 function loadImage(src) {
-  // Only load on client side
-  if (typeof window === 'undefined') return null;
+  // --- Return null immediately to prevent loading attempts and 404s ---
+  return null;
+
+  // --- Original code removed ---
+  // // Only load on client side
+  // if (typeof window === 'undefined') return null;
   
-  if (!imageCache[src]) {
-    try {
-      const img = new Image();
-      img.src = src;
-      imageCache[src] = img;
+  // if (!imageCache[src]) {
+  //   try {
+  //     const img = new Image();
+  //     img.src = src;
+  //     imageCache[src] = img;
       
-      // Return a promise that resolves when the image is loaded
-      return new Promise((resolve, reject) => {
-        img.onload = () => resolve(img);
-        img.onerror = () => {
-          console.error(`Failed to load image: ${src}`);
-          reject(new Error(`Failed to load image: ${src}`));
-        };
-      });
-    } catch (err) {
-      console.error('Error creating image:', src, err);
-      return null;
-    }
-  }
+  //     // Return a promise that resolves when the image is loaded
+  //     return new Promise((resolve, reject) => {
+  //       img.onload = () => resolve(img);
+  //       img.onerror = () => {
+  //         console.error(`Failed to load image: ${src}`);
+  //         reject(new Error(`Failed to load image: ${src}`));
+  //       };
+  //     });
+  //   } catch (err) {
+  //     console.error('Error creating image:', src, err);
+  //     return null;
+  //   }
+  // }
   
-  return imageCache[src];
+  // return imageCache[src];
 }
 
 /**
  * Get a loaded image from cache or load it
  */
 export function getImage(src) {
-  // Only run on client side
-  if (typeof window === 'undefined') return null;
+  // --- Return null immediately as loadImage is disabled ---
+  return null;
+
+  // --- Original code removed ---
+  // // Only run on client side
+  // if (typeof window === 'undefined') return null;
   
-  return imageCache[src] || loadImage(src);
+  // return imageCache[src] || loadImage(src);
 }
 
 /**
