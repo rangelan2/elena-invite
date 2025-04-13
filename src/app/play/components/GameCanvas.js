@@ -975,7 +975,6 @@ const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm
         MozUserSelect: 'none',
         msUserSelect: 'none',
         userSelect: 'none',
-        aspectRatio: '9/16',
         maxHeight: '100%',
         zIndex: 10
       }}

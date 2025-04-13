@@ -309,9 +309,6 @@ export default function Game({
       
       {!isLoading && !loadError && (
         <div className="mt-4 text-center">
-          <p className="mb-2">
-            <strong>Score:</strong> {scoreData.score} | <strong>High Score:</strong> {scoreData.highScore}
-          </p>
           <div className="text-sm text-gray-600 mb-4">
             <p>Tap, click, or press Space/Up Arrow to play</p>
           </div>
