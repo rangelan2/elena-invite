@@ -55,9 +55,11 @@ const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm
       // Adjust FPS target based on device
       frameIntervalRef.current = mobile ? 1000 / 30 : 1000 / 60;
       
-      // Update game state graphics settings
+      // Update game state graphics settings and physics
       if (gameStateRef.current) {
         gameStateRef.current.useLowGraphics = mobile;
+        // Adjust jump strength for mobile
+        gameStateRef.current.player.jump = mobile ? -6.5 : -8; 
       }
     };
     
@@ -659,42 +661,34 @@ const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm
       
       // Spawn obstacles at fixed intervals based on time
       // This ensures consistent pipe spacing regardless of player passing them
-      if (timestamp - gameState.lastObstacleSpawn > gameState.obstacleSpawnRate) {
-        // Calculate a random gap position (where the player can fly through)
-        const gapPosition = Math.random() * (canvas.height - gameState.obstacleGap - gameState.ground.height - 100) + 60;
+      const now = Date.now();
+      if (gameState.isGameActive && now - gameState.lastObstacleSpawn > gameState.obstacleSpawnRate) {
+        gameState.lastObstacleSpawn = now;
         
-        // Always spawn new pipes from the right edge of the screen
-        const startX = canvas.width;
+        // Ensure pipes don't overlap with the ground
+        const minObstacleHeight = 50; // Minimum height for top/bottom pipes
+        const availableHeight = canvas.height - gameState.ground.height - gameState.obstacleGap - (minObstacleHeight * 2);
         
-        // Add new pipe obstacle to the array
-        gameState.obstacles.push({
-          x: startX,
-          topHeight: gapPosition,
-          bottomY: gapPosition + gameState.obstacleGap,
-          passed: false
-        });
-        
-        // Store exact timestamp for consistent timing between spawns
-        gameState.lastObstacleSpawn = timestamp;
-        
-        // Increase difficulty as score increases, starting earlier and more noticeably
-        if (score > 5) { // Start difficulty increase earlier (was score > 10)
-          // Cap the minimum spawn rate to prevent impossible gameplay
-          const minSpawnRate = isMobile ? 1700 : 1200; // Slightly lower minimums
-          const reductionAmount = 30; // Reduce spawn rate faster (was 20)
-
-          // Gradually reduce spawn rate as score increases (makes pipes closer together)
-          gameState.obstacleSpawnRate = Math.max(minSpawnRate,
-            gameState.obstacleSpawnRate - (reductionAmount * (score > 15 ? 0.6 : 1)) // Adjust multiplier threshold/value
-          );
-
-          // Also limit pipe speed increases, starting earlier and increasing faster
-          if (score >= 15) { // Start speed increase earlier (was score >= 25)
-            const maxSpeed = isMobile ? 3.5 : 4.5; // Slightly higher max speeds
-            // Increase speed a bit faster (was 1.001)
-            gameState.obstacleSpeed = Math.min(maxSpeed, gameState.obstacleSpeed * 1.003);
-          }
+        if (availableHeight > 0) {
+          let obstacleTopHeight = minObstacleHeight + Math.random() * availableHeight;
+          
+          // Add safety margin above ground
+          const groundSafetyMargin = 20; 
+          const maxTopHeight = canvas.height - gameState.ground.height - gameState.obstacleGap - minObstacleHeight - groundSafetyMargin;
+          obstacleTopHeight = Math.min(obstacleTopHeight, maxTopHeight);
+          
+          gameState.obstacles.push({
+            x: canvas.width,
+            topHeight: obstacleTopHeight,
+            scored: false
+          });
+        } else {
+           console.warn("Not enough space to spawn obstacles without overlapping ground or gap.");
+           // Optionally handle this case, e.g., spawn a simpler obstacle or skip spawning
         }
+        
+        // Adjust spawn rate slightly for variety
+        gameState.obstacleSpawnRate = 1400 + Math.random() * 200; // e.g., between 1.4s and 1.6s
       }
       
       // Draw and update all obstacles
@@ -734,8 +728,8 @@ const GameCanvas = memo(({ onGameOver, onScoreUpdate, onStartGame, showScoreForm
         }
         
         // Check for score only when the player passes through a pipe
-        if (!obstacle.passed && obstacle.x + gameState.obstacleWidth < gameState.player.x) {
-          obstacle.passed = true;
+        if (!obstacle.scored && obstacle.x + gameState.obstacleWidth < gameState.player.x) {
+          obstacle.scored = true;
           const newScore = score + 1;
           setScore(newScore);
           onScoreUpdate(newScore);
